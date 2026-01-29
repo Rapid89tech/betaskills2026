@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Direct Access</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app">
+        <!-- Loading State -->
+        <div id="loading" class="min-h-screen flex items-center justify-center">
+            <div class="text-center">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-lg text-gray-600">Loading admin dashboard...</p>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboard" class="hidden">
+            <!-- Header -->
+            <div class="bg-white shadow-sm border-b">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between items-center py-6">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900">Direct Admin Dashboard</h1>
+                            <p class="text-gray-600">Bypassing React - Pure HTML/JS</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button 
+                                onclick="fetchData()"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            >
+                                Refresh Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <!-- Error Display -->
+                <div id="error" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                    <div class="text-red-800">
+                        <strong>Error:</strong> <span id="error-message"></span>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" id="stats-cards">
+                    <!-- Stats will be populated here -->
+                </div>
+
+                <!-- Tabs -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex">
+                            <button
+                                onclick="switchTab('users')"
+                                id="users-tab"
+                                class="py-2 px-4 border-b-2 font-medium text-sm border-blue-500 text-blue-600"
+                            >
+                                User Management (<span id="users-count">0</span>)
+                            </button>
+                            <button
+                                onclick="switchTab('enrollments')"
+                                id="enrollments-tab"
+                                class="py-2 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                            >
+                                Enrollment Management (<span id="enrollments-count">0</span>)
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- Users Tab -->
+                        <div id="users-content">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Registered Users</h3>
+                            <div id="users-list" class="space-y-4">
+                                <!-- Users will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Enrollments Tab -->
+                        <div id="enrollments-content" class="hidden">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Course Enrollments</h3>
+                            
+                            <!-- Enrollment Stats -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="enrollment-stats">
+                                <!-- Enrollment stats will be populated here -->
+                            </div>
+
+                            <div id="enrollments-list" class="space-y-4">
+                                <!-- Enrollments will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://jpawfcmixtchdvtrykhlst.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwYWZjbWl4dGNodnRya2hsdHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1MzIzODYsImV4cCI6MjA2OTEwODM4Nn0.dR0-DW8_ekftD9DZjGutGuyh4kiPG338NQ367tC8Pcw';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentTab = 'users';
+        let profiles = [];
+        let enrollments = [];
+
+        // Fetch data from Supabase
+        async function fetchData() {
+            try {
+                console.log('🔍 Starting to fetch data...');
+                
+                // Show loading
+                document.getElementById('loading').classList.remove('hidden');
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('error').classList.add('hidden');
+
+                // Fetch profiles
+                const { data: profilesData, error: profilesError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                console.log('📊 Profiles result:', { data: profilesData?.length, error: profilesError });
+                
+                if (profilesError) {
+                    throw new Error(`Profiles error: ${profilesError.message}`);
+                }
+                
+                // Fetch enrollments
+                const { data: enrollmentsData, error: enrollmentsError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .order('enrolled_at', { ascending: false });
+
+                console.log('📊 Enrollments result:', { data: enrollmentsData?.length, error: enrollmentsError });
+                
+                if (enrollmentsError) {
+                    throw new Error(`Enrollments error: ${enrollmentsError.message}`);
+                }
+                
+                profiles = profilesData || [];
+                enrollments = enrollmentsData || [];
+                
+                console.log('✅ Data fetched successfully:', { 
+                    profiles: profiles.length, 
+                    enrollments: enrollments.length 
+                });
+
+                // Update UI
+                updateStats();
+                updateUsersList();
+                updateEnrollmentsList();
+                
+                // Show dashboard
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('❌ Error fetching data:', error);
+                document.getElementById('error-message').textContent = error.message;
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        // Calculate stats
+        function getStats() {
+            return {
+                totalUsers: profiles.length,
+                approvedUsers: profiles.filter(u => u.approval_status === 'approved').length,
+                pendingUsers: profiles.filter(u => u.approval_status === 'pending').length,
+                rejectedUsers: profiles.filter(u => u.approval_status === 'rejected').length,
+                totalEnrollments: enrollments.length,
+                pendingEnrollments: enrollments.filter(e => e.status === 'pending').length,
+                approvedEnrollments: enrollments.filter(e => e.status === 'approved').length,
+                rejectedEnrollments: enrollments.filter(e => e.status === 'rejected').length,
+            };
+        }
+
+        // Update stats cards
+        function updateStats() {
+            const stats = getStats();
+            
+            document.getElementById('stats-cards').innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-2xl font-bold text-gray-900">${stats.totalUsers}</div>
+                            <div class="text-sm text-gray-600">Total Users</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-2xl font-bold text-gray-900">${stats.approvedUsers}</div>
+                            <div class="text-sm text-gray-600">Approved Users</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-lg">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-2xl font-bold text-gray-900">${stats.pendingUsers}</div>
+                            <div class="text-sm text-gray-600">Pending Users</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-lg">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-2xl font-bold text-gray-900">${stats.rejectedUsers}</div>
+                            <div class="text-sm text-gray-600">Rejected Users</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Update tab counts
+            document.getElementById('users-count').textContent = stats.totalUsers;
+            document.getElementById('enrollments-count').textContent = stats.totalEnrollments;
+        }
+
+        // Update users list
+        function updateUsersList() {
+            const usersList = document.getElementById('users-list');
+            usersList.innerHTML = profiles.map(user => `
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                            ${user.first_name?.[0] || user.email[0]}
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-900">${user.first_name} ${user.last_name}</div>
+                            <div class="text-sm text-gray-600">${user.email}</div>
+                            <div class="flex items-center space-x-2 mt-1">
+                                <span class="px-2 py-1 text-xs rounded-full ${
+                                    user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+                                    user.role === 'instructor' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-gray-100 text-gray-800'
+                                }">
+                                    ${user.role}
+                                </span>
+                                <span class="px-2 py-1 text-xs rounded-full ${
+                                    user.approval_status === 'approved' ? 'bg-green-100 text-green-800' :
+                                    user.approval_status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                    'bg-yellow-100 text-yellow-800'
+                                }">
+                                    ${user.approval_status || 'pending'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        ${new Date(user.created_at).toLocaleDateString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update enrollments list
+        function updateEnrollmentsList() {
+            const stats = getStats();
+            
+            // Update enrollment stats
+            document.getElementById('enrollment-stats').innerHTML = `
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600">${stats.totalEnrollments}</div>
+                    <div class="text-sm text-blue-600">Total Enrollments</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600">${stats.approvedEnrollments}</div>
+                    <div class="text-sm text-green-600">Approved</div>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-yellow-600">${stats.pendingEnrollments}</div>
+                    <div class="text-sm text-yellow-600">Pending</div>
+                </div>
+            `;
+
+            // Update enrollments list
+            const enrollmentsList = document.getElementById('enrollments-list');
+            enrollmentsList.innerHTML = enrollments.map(enrollment => `
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center text-white font-bold">
+                            ${enrollment.user_email[0]}
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-900">${enrollment.course_title}</div>
+                            <div class="text-sm text-gray-600">${enrollment.user_email}</div>
+                            <div class="flex items-center space-x-2 mt-1">
+                                <span class="px-2 py-1 text-xs rounded-full ${
+                                    enrollment.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                    enrollment.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                    'bg-yellow-100 text-yellow-800'
+                                }">
+                                    ${enrollment.status}
+                                </span>
+                                <span class="text-sm text-gray-600">
+                                    Progress: ${enrollment.progress}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        ${new Date(enrollment.enrolled_at).toLocaleDateString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.getElementById('users-tab').className = 
+                tab === 'users' ? 'py-2 px-4 border-b-2 font-medium text-sm border-blue-500 text-blue-600' :
+                'py-2 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+            
+            document.getElementById('enrollments-tab').className = 
+                tab === 'enrollments' ? 'py-2 px-4 border-b-2 font-medium text-sm border-blue-500 text-blue-600' :
+                'py-2 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+            
+            // Show/hide content
+            document.getElementById('users-content').classList.toggle('hidden', tab !== 'users');
+            document.getElementById('enrollments-content').classList.toggle('hidden', tab !== 'enrollments');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+</html>

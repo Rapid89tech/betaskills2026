@@ -1,0 +1,62 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User model
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  passwordHash    String
+  isApproved      Boolean          @default(false)
+  approvalStatus  ApprovalStatus   @default(PENDING)
+  createdAt       DateTime         @default(now())
+  approvalRequests ApprovalRequest[]
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ApprovalRequest model for audit/history
+model ApprovalRequest {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  requestedAt DateTime  @default(now())
+  reviewedAt  DateTime?
+  reviewerId  String?
+  status      ApprovalStatus @default(PENDING)
+  reason      String?
+}
+
+model Enrollment {
+  id             String    @id @default(uuid())
+  userId         String
+  userEmail      String
+  courseId       String
+  courseTitle    String
+  proofOfPayment String
+  paymentRef     String?
+  paymentDate    String?
+  enrolledAt     DateTime  @default(now())
+  status         String    @default("pending")
+  approvedBy     String?
+  approvedAt     DateTime?
+}
+
+model Notification {
+  id            String   @id @default(uuid())
+  type          String
+  enrollmentId  String?
+  courseTitle   String?
+  userEmail     String?
+  timestamp     DateTime @default(now())
+  read          Boolean  @default(false)
+} 

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard v2</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="app">
+        <div class="min-h-screen flex items-center justify-center">
+            <div class="text-center">
+                <h1 class="text-2xl font-bold mb-4">Admin Dashboard v2</h1>
+                <div id="status" class="mb-4">Initializing...</div>
+                <div id="data" class="text-left max-w-2xl mx-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function initDashboard() {
+            const statusDiv = document.getElementById('status');
+            const dataDiv = document.getElementById('data');
+            
+            try {
+                // Try to get the URL from the auth session first
+                const authSession = localStorage.getItem('supabase-auth-session');
+                let supabaseUrl = null;
+                let supabaseKey = null;
+                
+                if (authSession) {
+                    try {
+                        const parsed = JSON.parse(authSession);
+                        if (parsed.access_token) {
+                            // Extract URL from JWT token
+                            const payload = JSON.parse(atob(parsed.access_token.split('.')[1]));
+                            supabaseUrl = payload.iss.replace('/auth/v1/', '');
+                            supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwYWZjbWl4dGNodnRya2hsdHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1MzIzODYsImV4cCI6MjA2OTEwODM4Nn0.dR0-DW8_ekftD9DZjGutGuyh4kiPG338NQ367tC8Pcw';
+                            
+                            statusDiv.innerHTML = `<p class="text-green-600">✅ Using URL from auth session: ${supabaseUrl}</p>`;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing auth session:', e);
+                    }
+                }
+                
+                // Fallback to hardcoded values
+                if (!supabaseUrl) {
+                    supabaseUrl = 'https://jpawfcmixtchdvtrykhlst.supabase.co';
+                    supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwYWZjbWl4dGNodnRya2hsdHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1MzIzODYsImV4cCI6MjA2OTEwODM4Nn0.dR0-DW8_ekftD9DZjGutGuyh4kiPG338NQ367tC8Pcw';
+                    statusDiv.innerHTML = `<p class="text-yellow-600">⚠️ Using fallback URL: ${supabaseUrl}</p>`;
+                }
+                
+                // Create Supabase client
+                const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                
+                // Test connection
+                statusDiv.innerHTML += '<p class="text-blue-600">🔄 Testing connection...</p>';
+                
+                const { data: profiles, error: profilesError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .limit(5);
+                
+                if (profilesError) {
+                    throw new Error(`Profiles error: ${profilesError.message}`);
+                }
+                
+                statusDiv.innerHTML = `<p class="text-green-600">✅ Connected successfully! Found ${profiles.length} profiles</p>`;
+                
+                // Display data
+                dataDiv.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h2 class="text-xl font-bold mb-4">Sample Profiles</h2>
+                        ${profiles.map(profile => `
+                            <div class="border-b py-2">
+                                <div class="font-semibold">${profile.first_name} ${profile.last_name}</div>
+                                <div class="text-sm text-gray-600">${profile.email}</div>
+                                <div class="text-xs text-gray-500">Role: ${profile.role} | Status: ${profile.approval_status}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<p class="text-red-600">❌ Error: ${error.message}</p>`;
+                dataDiv.innerHTML = `
+                    <div class="bg-red-50 p-4 rounded border border-red-200">
+                        <h3 class="font-bold text-red-800">Debug Info:</h3>
+                        <p class="text-sm text-red-700">${error.stack}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

@@ -1,0 +1,3734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>Admin Dashboard - Beta Skill (v2.0)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // Fallback Supabase loading
+        if (!window.supabase) {
+            console.log('🔄 Loading Supabase from fallback CDN...');
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            script.onload = () => console.log('✅ Supabase loaded from fallback CDN');
+            script.onerror = () => console.error('❌ Failed to load Supabase from fallback CDN');
+            document.head.appendChild(script);
+        }
+    </script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .loading { opacity: 0.6; pointer-events: none; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .success-toast { 
+            position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 15px; border-radius: 8px; z-index: 1000; 
+            animation: slideIn 0.3s ease-out; 
+        }
+        .error-toast { 
+            position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 15px; border-radius: 8px; z-index: 1000; 
+            animation: slideIn 0.3s ease-out; 
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="gradient-bg text-white p-6">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl font-bold mb-2">Admin Dashboard</h1>
+            <p class="text-xl opacity-90">Manage users, enrollments, and system settings</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Connection Status -->
+        <div id="connectionStatus" class="bg-white rounded-lg shadow-lg p-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div id="statusIndicator" class="w-3 h-3 bg-gray-400 rounded-full mr-3"></div>
+                    <span id="statusText" class="text-gray-600">Connecting to database...</span>
+                </div>
+                            <button onclick="reconnectDatabase()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                🔄 Reconnect
+            </button>
+            <button onclick="testDatabaseAccess()" class="text-green-600 hover:text-green-800 text-sm font-medium ml-4">
+                🧪 Test DB
+            </button>
+            </div>
+        </div>
+
+        <!-- Status Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-lg p-6 fade-in">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total Users</p>
+                        <p class="text-2xl font-bold text-gray-900" id="totalUsers">-</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 fade-in">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Approved Users</p>
+                        <p class="text-2xl font-bold text-gray-900" id="approvedUsers">-</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 fade-in">
+                <div class="flex items-center">
+                    <div class="p-3 bg-yellow-100 rounded-lg">
+                        <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Pending Users</p>
+                        <p class="text-2xl font-bold text-gray-900" id="pendingUsers">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🚨 SENIOR DEVELOPER: Advanced Admin Tools - Responsive Grid Layout -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 mb-6">
+            <!-- Row 1: Core Functions -->
+            <button onclick="refreshAllData()" id="refreshBtn" class="bg-green-600 text-white px-4 py-3 rounded-md hover:bg-green-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span class="text-sm font-medium">Refresh Data</span>
+            </button>
+            
+            <button onclick="exportData()" class="bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-sm font-medium">Export Data</span>
+            </button>
+            
+            <button onclick="createTestEnrollment()" class="bg-purple-600 text-white px-4 py-3 rounded-md hover:bg-purple-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <span class="text-sm font-medium">+ Test Enrollment</span>
+            </button>
+            
+            <button onclick="debugDatabaseAccess()" class="bg-orange-600 text-white px-4 py-3 rounded-md hover:bg-orange-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+                <span class="text-sm font-medium">Debug Database</span>
+            </button>
+            
+            <button onclick="checkLocalStorageEnrollments()" class="bg-purple-600 text-white px-4 py-3 rounded-md hover:bg-purple-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                <span class="text-sm font-medium">Check localStorage</span>
+            </button>
+            
+            <button onclick="syncLocalStorageToSupabase()" class="bg-indigo-600 text-white px-4 py-3 rounded-md hover:bg-indigo-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+                <span class="text-sm font-medium">Sync to DB</span>
+            </button>
+            
+            <!-- Row 2: Enrollment Management -->
+            <button onclick="fetchAllEnrollments()" class="bg-green-600 text-white px-4 py-3 rounded-md hover:bg-green-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span class="text-sm font-medium">Fetch All Enrollments</span>
+            </button>
+            
+            <button onclick="forceRefreshEnrollments()" class="bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span class="text-sm font-medium">Force Refresh</span>
+            </button>
+            
+            <button onclick="cleanupDuplicateEnrollments()" class="bg-red-600 text-white px-4 py-3 rounded-md hover:bg-red-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span class="text-sm font-medium">Clean Duplicates</span>
+            </button>
+            
+            <button onclick="emergencyCleanup()" class="bg-orange-600 text-white px-4 py-3 rounded-md hover:bg-orange-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <span class="text-sm font-medium">EMERGENCY CLEANUP</span>
+            </button>
+            
+            <button onclick="debugUserData()" class="bg-purple-600 text-white px-4 py-3 rounded-md hover:bg-purple-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-sm font-medium">DEBUG USER DATA</span>
+            </button>
+            
+            <button onclick="debugEnrollmentStatus()" class="bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm font-medium">Debug Status</span>
+            </button>
+            
+            <button onclick="forceSyncAllApprovedEnrollments()" class="bg-purple-600 text-white px-4 py-3 rounded-md hover:bg-purple-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span class="text-sm font-medium">Force Sync All Approved</span>
+            </button>
+            
+            <button onclick="comprehensiveEnrollmentFix()" class="bg-orange-600 text-white px-4 py-3 rounded-md hover:bg-orange-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="text-sm font-medium">🔧 Fix All Enrollments</span>
+            </button>
+            
+            <button onclick="testRealTimeEvents()" class="bg-indigo-600 text-white px-4 py-3 rounded-md hover:bg-indigo-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+                <span class="text-sm font-medium">🧪 Test Events</span>
+            </button>
+            
+            <!-- Row 3: Advanced Sync Tools -->
+            <button onclick="directManualSyncToUser()" class="bg-teal-600 text-white px-4 py-3 rounded-md hover:bg-teal-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span class="text-sm font-medium">🚀 Direct Manual Sync</span>
+            </button>
+            
+            <button onclick="forceRefreshSpecificUser('ericmnisi007@gmail.com')" class="bg-pink-600 text-white px-4 py-3 rounded-md hover:bg-pink-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span class="text-sm font-medium">🔄 Force Refresh User</span>
+            </button>
+            
+            <button onclick="smartEnrollmentSync()" class="bg-emerald-600 text-white px-4 py-3 rounded-md hover:bg-emerald-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span class="text-sm font-medium">🧠 Smart Sync</span>
+            </button>
+            
+            <button onclick="approveAllPendingEnrollments()" class="bg-amber-600 text-white px-4 py-3 rounded-md hover:bg-amber-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm font-medium">🚀 Approve All Pending</span>
+            </button>
+            
+            <!-- 🚨 NEW: Remove All Enrollments for Specific User -->
+            <button onclick="removeAllEnrollmentsForUser('ericmnisi007@gmail.com')" class="bg-red-600 text-white px-4 py-3 rounded-md hover:bg-red-700 flex flex-col items-center justify-center transition-colors min-h-[80px]">
+                <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span class="text-sm font-medium">🗑️ Remove ericmnisi007</span>
+            </button>
+        </div>
+
+        <!-- Real-time Status Indicator -->
+        <div class="flex items-center bg-gray-100 px-4 py-3 rounded-md mb-6">
+                <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                <span class="text-sm text-gray-600">• Real-time updates active</span>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden fade-in">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">Registered Users</h3>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="userSearch" placeholder="Search users..." 
+                           class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="userStatusFilter" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                <div class="flex items-center justify-center">
+                                    <svg class="animate-spin h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Loading users...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Enrollments Table -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mt-6 fade-in border-4 border-red-500">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
+                <div class="flex items-center space-x-4">
+                    <h3 class="text-lg font-medium text-gray-900">🚨 COURSE ENROLLMENTS - PENDING REQUESTS HERE 🚨</h3>
+                    <button onclick="fetchEnrollments()" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh Enrollments
+                    </button>
+                    <button onclick="checkForNewEnrollments()" class="text-green-600 hover:text-green-800 text-sm font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Check Now
+                    </button>
+                                                    <button onclick="checkLocalStorageNow()" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center ml-2">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                        </svg>
+                        Check localStorage
+                    </button>
+                    <button onclick="scrollToEnrollments()" class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center ml-2 bg-red-100 px-3 py-1 rounded">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        🚨 SHOW ENROLLMENTS
+                    </button>
+            <button onclick="debugAllEnrollments()" class="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center ml-2 bg-purple-100 px-3 py-1 rounded">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                🔍 DEBUG ALL
+            </button>
+            
+            <button onclick="forceRefreshAllEnrollments()" class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center ml-2 bg-red-100 px-3 py-1 rounded">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                🚨 FORCE REFRESH ALL
+            </button>
+            
+            <button onclick="searchSpecificUser('dyosisabelo180@gmail.com')" class="text-orange-600 hover:text-orange-800 text-sm font-medium flex items-center ml-2 bg-orange-100 px-3 py-1 rounded">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                🔍 FIND DYOSISABELO
+            </button>
+            
+            <button onclick="debugLocalStorageData()" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center ml-2 bg-indigo-100 px-3 py-1 rounded">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                🔍 DEBUG LOCALSTORAGE
+            </button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="enrollmentSearch" placeholder="Search enrollments..." 
+                           class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="enrollmentStatusFilter" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <button onclick="showPendingOnly()" class="px-3 py-1 bg-yellow-500 text-white rounded-md text-sm hover:bg-yellow-600 transition-colors">
+                        Show Pending Only
+                    </button>
+                    <button onclick="showAllEnrollments()" class="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition-colors">
+                        Show All
+                    </button>
+                    <button onclick="showUserEnrollments()" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors">
+                        Show My Enrollments
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="enrollmentsTableBody">
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                <div class="flex items-center justify-center">
+                                    <svg class="animate-spin h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Loading enrollments...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="userProfileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">User Profile</h2>
+                <button onclick="closeUserProfile()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Loading State -->
+                <div id="userProfileLoading" class="flex items-center justify-center py-12">
+                    <svg class="animate-spin h-8 w-8 text-blue-600 mr-3" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-gray-600">Loading user profile...</span>
+                </div>
+
+                <!-- User Profile Content -->
+                <div id="userProfileContent" class="hidden">
+                    <!-- User Header -->
+                    <div class="flex items-center mb-8">
+                        <div id="userAvatar" class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-2xl mr-6">
+                        </div>
+                        <div>
+                            <h3 id="userFullName" class="text-2xl font-bold text-gray-900 mb-1"></h3>
+                            <p id="userEmail" class="text-lg text-gray-600 mb-2"></p>
+                            <div class="flex items-center space-x-4">
+                                <span id="userRole" class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"></span>
+                                <span id="userStatus" class="px-3 py-1 rounded-full text-sm font-medium"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Details Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Personal Information -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Personal Information
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">First Name:</span>
+                                    <span id="userFirstName" class="font-medium text-gray-900"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Last Name:</span>
+                                    <span id="userLastName" class="font-medium text-gray-900"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Phone:</span>
+                                    <span id="userPhone" class="font-medium text-gray-900"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Date of Birth:</span>
+                                    <span id="userDob" class="font-medium text-gray-900"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Gender:</span>
+                                    <span id="userGender" class="font-medium text-gray-900"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Information -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                                Account Information
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">User ID:</span>
+                                    <span id="userId" class="font-medium text-gray-900 text-sm"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Registration Date:</span>
+                                    <span id="userRegistrationDate" class="font-medium text-gray-900"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Last Login:</span>
+                                    <span id="userLastLogin" class="font-medium text-gray-900"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Email Verified:</span>
+                                    <span id="userEmailVerified" class="font-medium text-gray-900"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enrollment Status -->
+                    <div class="bg-blue-50 rounded-lg p-6 mb-8">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            Enrollment Status
+                        </h4>
+                        <div id="enrollmentStatus" class="space-y-4">
+                            <!-- Enrollment content will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Course Progress -->
+                    <div class="bg-green-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            Course Progress
+                        </h4>
+                        <div id="courseProgress" class="space-y-4">
+                            <!-- Progress content will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let supabase = null;
+        let allUsers = [];
+        let allEnrollments = [];
+        let pollingInterval = null;
+        let localStoragePollingInterval = null;
+        let lastEnrollmentCount = 0;
+
+        // Check if user_progress table exists and create if needed
+        async function ensureUserProgressTable() {
+            try {
+                // Try to query the table to see if it exists
+                const { data, error } = await supabase
+                    .from('user_progress')
+                    .select('id')
+                    .limit(1);
+                
+                if (error && error.code === 'PGRST116') {
+                    console.log('📊 user_progress table does not exist, creating...');
+                    
+                    // Create the table
+                    const { error: createError } = await supabase.rpc('create_user_progress_table');
+                    
+                    if (createError) {
+                        console.warn('⚠️ Could not create user_progress table:', createError);
+                    } else {
+                        console.log('✅ user_progress table created successfully');
+                    }
+                } else if (error) {
+                    console.warn('⚠️ Error checking user_progress table:', error);
+                } else {
+                    console.log('✅ user_progress table exists');
+                }
+            } catch (e) {
+                console.warn('⚠️ Could not check user_progress table:', e);
+            }
+        }
+
+        // Initialize Supabase and load data automatically
+        async function initializeSupabase() {
+            const supabaseUrl = 'https://jpafcmixtchvtrkhltst.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwYWZjbWl4dGNodnRya2hsdHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1MzIzODYsImV4cCI6MjA2OTEwODM4Nn0.dR0-DW8_ekftD9DZjGutGuyh4kiPG338NQ367tC8Pcw';
+            
+            try {
+                console.log('🔄 Initializing Supabase client...');
+                console.log('🔗 Supabase URL:', supabaseUrl);
+                console.log('🔑 Supabase Key:', supabaseAnonKey.substring(0, 20) + '...');
+                
+                // Wait for Supabase library to load (with timeout)
+                let attempts = 0;
+                const maxAttempts = 10;
+                
+                while (!window.supabase && attempts < maxAttempts) {
+                    console.log(`⏳ Waiting for Supabase library... (attempt ${attempts + 1}/${maxAttempts})`);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    attempts++;
+                }
+                
+                if (!window.supabase) {
+                    throw new Error('Supabase library failed to load after multiple attempts');
+                }
+                
+                console.log('✅ Supabase library loaded');
+                
+                supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+                console.log('✅ Supabase client created');
+                
+                // Test the connection with retry logic
+                console.log('🔄 Testing database connection...');
+                let connectionSuccess = false;
+                let lastError = null;
+                
+                for (let i = 0; i < 3; i++) {
+                    try {
+                        const { data: testData, error: testError } = await supabase
+                            .from('enrollments')
+                            .select('count')
+                            .limit(1);
+                        
+                        if (testError) {
+                            lastError = testError;
+                            console.log(`⚠️ Connection attempt ${i + 1} failed:`, testError.message);
+                            if (i < 2) await new Promise(resolve => setTimeout(resolve, 1000));
+                            continue;
+                        }
+                        
+                        connectionSuccess = true;
+                        console.log('✅ Database connection test passed');
+                        break;
+                    } catch (error) {
+                        lastError = error;
+                        console.log(`⚠️ Connection attempt ${i + 1} failed:`, error.message);
+                        if (i < 2) await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+                
+                if (!connectionSuccess) {
+                    throw new Error('Database connection test failed after 3 attempts: ' + (lastError?.message || 'Unknown error'));
+                }
+                
+                updateConnectionStatus('connected', 'Connected to database');
+                
+                // Auto-load data
+                console.log('🔄 Loading initial data...');
+                await Promise.all([
+                    fetchUsers(),
+                    fetchEnrollments()
+                ]);
+                
+                // Ensure user_progress table exists
+                await ensureUserProgressTable();
+                
+                // Start real-time polling
+                startRealTimePolling();
+                
+                showToast('✅ Connected to database successfully!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error initializing Supabase:', error);
+                updateConnectionStatus('error', 'Failed to connect to database: ' + error.message);
+                showToast('❌ Failed to connect to database: ' + error.message, 'error');
+                
+                // Add retry button
+                const statusDiv = document.getElementById('connectionStatus');
+                if (!statusDiv.querySelector('.retry-button')) {
+                    const retryButton = document.createElement('button');
+                    retryButton.className = 'retry-button bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 ml-4';
+                    retryButton.textContent = '🔄 Retry Connection';
+                    retryButton.onclick = () => {
+                        retryButton.remove();
+                        initializeSupabase();
+                    };
+                    statusDiv.querySelector('.flex').appendChild(retryButton);
+                }
+            }
+        }
+
+        function updateConnectionStatus(status, message) {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            statusText.textContent = message;
+            
+            switch (status) {
+                case 'connected':
+                    indicator.className = 'w-3 h-3 bg-green-500 rounded-full mr-3';
+                    break;
+                case 'error':
+                    indicator.className = 'w-3 h-3 bg-red-500 rounded-full mr-3';
+                    break;
+                case 'connecting':
+                    indicator.className = 'w-3 h-3 bg-yellow-500 rounded-full mr-3 animate-pulse';
+                    break;
+            }
+        }
+
+        async function reconnectDatabase() {
+            updateConnectionStatus('connecting', 'Reconnecting...');
+            await initializeSupabase();
+        }
+
+        // Simple test function to verify database access
+        async function testDatabaseAccess() {
+            try {
+                console.log('🧪 Testing database access...');
+                
+                if (!supabase) {
+                    console.log('❌ No Supabase client available');
+                    return;
+                }
+                
+                // Test profiles table
+                const { data: users, error: userError } = await supabase
+                    .from('profiles')
+                    .select('count');
+                
+                if (userError) {
+                    console.error('❌ Profiles table error:', userError);
+                } else {
+                    console.log('✅ Profiles table accessible');
+                }
+                
+                // Test enrollments table
+                const { data: enrollments, error: enrollmentError } = await supabase
+                    .from('enrollments')
+                    .select('count');
+                
+                if (enrollmentError) {
+                    console.error('❌ Enrollments table error:', enrollmentError);
+                } else {
+                    console.log('✅ Enrollments table accessible');
+                }
+                
+                console.log('🧪 Database access test completed');
+                
+            } catch (error) {
+                console.error('❌ Database access test failed:', error);
+            }
+        }
+
+        async function fetchUsers() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🔄 Fetching users...');
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                console.log('✅ Users fetched:', data);
+                allUsers = data || [];
+                displayUsers(allUsers);
+                updateStats(allUsers);
+                showToast(`✅ Loaded ${allUsers.length} users`, 'success');
+            } catch (error) {
+                console.error('❌ Error fetching users:', error);
+                showToast('❌ Failed to fetch users: ' + error.message, 'error');
+                displayUsers([]);
+            }
+        }
+
+        async function fetchEnrollments() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🔄 Fetching enrollments...');
+                console.log('🔗 Supabase client status:', !!supabase);
+                
+                // First, let's test the connection
+                const { data: testData, error: testError } = await supabase
+                    .from('enrollments')
+                    .select('count')
+                    .limit(1);
+                
+                if (testError) {
+                    console.error('❌ Database connection test failed:', testError);
+                    throw testError;
+                }
+                
+                console.log('✅ Database connection test passed');
+
+                // Now fetch ALL enrollments with detailed logging
+                const { data, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .order('enrolled_at', { ascending: false });
+
+                if (error) {
+                    console.error('❌ Error fetching enrollments:', error);
+                    throw error;
+                }
+
+                console.log('✅ Raw enrollment data received:', data);
+                console.log('📊 Total enrollments fetched:', data?.length || 0);
+                
+                allEnrollments = data || [];
+                lastEnrollmentCount = allEnrollments.length;
+                
+                // Log enrollment status breakdown
+                const statusCounts = allEnrollments.reduce((acc, enrollment) => {
+                    acc[enrollment.status] = (acc[enrollment.status] || 0) + 1;
+                    return acc;
+                }, {});
+                console.log('📊 Enrollment status breakdown:', statusCounts);
+                
+                // Log unique users
+                const uniqueUsers = [...new Set(allEnrollments.map(e => e.user_email))];
+                console.log('👥 Unique users with enrollments:', uniqueUsers);
+                
+                // Log each enrollment for debugging
+                allEnrollments.forEach((enrollment, index) => {
+                    console.log(`📋 Enrollment ${index + 1}:`, {
+                        id: enrollment.id,
+                        user_email: enrollment.user_email,
+                        course_title: enrollment.course_title,
+                        status: enrollment.status,
+                        enrolled_at: enrollment.enrolled_at
+                    });
+                });
+                
+                displayEnrollments(allEnrollments);
+                updatePendingUsersCount(); // Update counts after fetching enrollments
+                showToast(`✅ Loaded ${allEnrollments.length} enrollments (${statusCounts.pending || 0} pending) from ${uniqueUsers.length} users`, 'success');
+            } catch (error) {
+                console.error('❌ Error fetching enrollments:', error);
+                showToast('❌ Failed to fetch enrollments: ' + error.message, 'error');
+                displayEnrollments([]);
+            }
+        }
+
+        // 🚨 SENIOR DEVELOPER SOLUTION: Comprehensive enrollment aggregation
+        async function fetchAllEnrollments() {
+            console.log('🚀 SUPABASE-ONLY: Fetching enrollments from Supabase database only...');
+            
+            if (!supabase) {
+                console.error('❌ Supabase not initialized');
+                showToast('❌ Database connection not available', 'error');
+                return;
+            }
+
+            try {
+                // FETCH ONLY PENDING ENROLLMENTS - NO MORE APPROVED ONES
+                console.log('🔍 Fetching ONLY PENDING enrollments from Supabase...');
+                const { data: supabaseEnrollments, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('status', 'pending')
+                    .order('enrolled_at', { ascending: false });
+
+                if (error) {
+                    console.error('❌ Supabase fetch error:', error);
+                    showToast('❌ Failed to fetch enrollments: ' + error.message, 'error');
+                    allEnrollments = [];
+                } else {
+                    console.log('✅ Supabase enrollments loaded:', supabaseEnrollments?.length || 0);
+                    
+                    // SIMPLE FIX: Only show ONE enrollment per user per course
+                    const seen = new Set();
+                    allEnrollments = [];
+                    
+                    for (const enrollment of supabaseEnrollments || []) {
+                        const key = `${enrollment.user_email}_${enrollment.course_id}`;
+                        
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            allEnrollments.push(enrollment);
+                            console.log(`✅ Adding unique enrollment: ${enrollment.user_email} - ${enrollment.course_id}`);
+                        } else {
+                            console.log(`❌ Skipping duplicate: ${enrollment.user_email} - ${enrollment.course_id}`);
+                        }
+                    }
+                    
+                    // Log each enrollment for debugging
+                    console.log('📊 TOTAL PENDING ENROLLMENTS:', supabaseEnrollments?.length || 0);
+                    console.log('📊 AFTER DEDUPLICATION:', allEnrollments.length);
+                    allEnrollments.forEach((enrollment, index) => {
+                        console.log(`📝 Unique Pending ${index + 1}:`, {
+                            user: enrollment.user_email,
+                            course: enrollment.course_id,
+                            status: enrollment.status,
+                            date: enrollment.enrolled_at || enrollment.created_at
+                        });
+                    });
+                    lastEnrollmentCount = allEnrollments.length;
+                }
+
+                // LOG SUMMARY
+                console.log('📊 SUPABASE ENROLLMENT SUMMARY:');
+                console.log('   • Total enrollments:', allEnrollments.length);
+                console.log('   • Pending count:', allEnrollments.filter(e => e.status === 'pending').length);
+                console.log('   • Approved count:', allEnrollments.filter(e => e.status === 'approved').length);
+                console.log('   • Rejected count:', allEnrollments.filter(e => e.status === 'rejected').length);
+
+                // DISPLAY AND UPDATE COUNTS
+                displayEnrollments(allEnrollments);
+                updatePendingUsersCount();
+
+                // SHOW SUCCESS MESSAGE
+                const pendingCount = allEnrollments.filter(e => e.status === 'pending').length;
+                showToast(`✅ Loaded ${allEnrollments.length} enrollments from database (${pendingCount} pending)`, 'success');
+
+            } catch (error) {
+                console.error('❌ CRITICAL ERROR in fetchAllEnrollments:', error);
+                allEnrollments = [];
+                showToast('❌ Failed to fetch enrollments: ' + error.message, 'error');
+            }
+        }
+
+        async function refreshAllData() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            const refreshText = document.getElementById('refreshText');
+            
+            refreshBtn.classList.add('loading');
+            refreshText.textContent = 'Refreshing...';
+            
+            try {
+                await Promise.all([
+                    fetchUsers(),
+                    fetchEnrollments()
+                ]);
+                showToast('✅ Data refreshed successfully!', 'success');
+            } catch (error) {
+                showToast('❌ Failed to refresh data', 'error');
+            } finally {
+                refreshBtn.classList.remove('loading');
+                refreshText.textContent = 'Refresh Data';
+            }
+        }
+
+        // Force refresh enrollments with cache busting
+        async function forceRefreshEnrollments() {
+            console.log('🚀 FORCE REFRESH: Clearing all caches and fetching fresh data...');
+            
+            try {
+                // Clear any cached data
+                allEnrollments = [];
+                lastEnrollmentCount = 0;
+                
+                // Force fresh fetch from Supabase
+                await fetchAllEnrollments();
+                
+                showToast('✅ Force refresh completed!', 'success');
+            } catch (error) {
+                console.error('❌ Force refresh error:', error);
+                showToast('❌ Force refresh failed: ' + error.message, 'error');
+            }
+        }
+
+        // Clean up duplicate enrollments in the database
+        async function cleanupDuplicateEnrollments() {
+            console.log('🧹 CLEANUP: Removing duplicate enrollments from database...');
+            
+            try {
+                // First, get all pending enrollments
+                const { data: allPending, error: fetchError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('status', 'pending')
+                    .order('enrolled_at', { ascending: false });
+
+                if (fetchError) {
+                    throw fetchError;
+                }
+
+                console.log('📊 Found', allPending?.length || 0, 'pending enrollments');
+
+                // Group by user_email + course_id
+                const groups = new Map();
+                for (const enrollment of allPending || []) {
+                    const key = `${enrollment.user_email}_${enrollment.course_id}`;
+                    if (!groups.has(key)) {
+                        groups.set(key, []);
+                    }
+                    groups.get(key).push(enrollment);
+                }
+
+                // For each group, keep only the latest and delete the rest
+                let deletedCount = 0;
+                for (const [key, enrollments] of groups) {
+                    if (enrollments.length > 1) {
+                        console.log(`🔍 Group ${key}: ${enrollments.length} duplicates found`);
+                        
+                        // Sort by date (latest first)
+                        enrollments.sort((a, b) => {
+                            const dateA = new Date(a.enrolled_at || a.created_at);
+                            const dateB = new Date(b.enrolled_at || b.created_at);
+                            return dateB - dateA;
+                        });
+
+                        // Keep the first (latest), delete the rest
+                        const toDelete = enrollments.slice(1);
+                        console.log(`🗑️ Deleting ${toDelete.length} duplicates for ${key}`);
+                        
+                        for (const duplicate of toDelete) {
+                            const { error: deleteError } = await supabase
+                                .from('enrollments')
+                                .delete()
+                                .eq('id', duplicate.id);
+                            
+                            if (deleteError) {
+                                console.error('❌ Error deleting duplicate:', deleteError);
+                            } else {
+                                deletedCount++;
+                            }
+                        }
+                    }
+                }
+
+                console.log(`✅ Cleanup completed: ${deletedCount} duplicates removed`);
+                showToast(`✅ Cleanup completed: ${deletedCount} duplicates removed`, 'success');
+                
+                // Refresh the enrollment list
+                await fetchAllEnrollments();
+                
+            } catch (error) {
+                console.error('❌ Cleanup error:', error);
+                showToast('❌ Cleanup failed: ' + error.message, 'error');
+            }
+        }
+
+        // EMERGENCY CLEANUP - Delete ALL duplicate enrollments immediately
+        async function emergencyCleanup() {
+            console.log('🚨 EMERGENCY CLEANUP: Deleting ALL duplicate enrollments...');
+            
+            if (!confirm('⚠️ WARNING: This will delete ALL duplicate enrollments from the database. Only the latest enrollment per user per course will be kept. Continue?')) {
+                return;
+            }
+            
+            try {
+                // Get all pending enrollments
+                const { data: allPending, error: fetchError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('status', 'pending')
+                    .order('enrolled_at', { ascending: false });
+
+                if (fetchError) {
+                    throw fetchError;
+                }
+
+                console.log('📊 Found', allPending?.length || 0, 'pending enrollments');
+
+                // Group by user_email + course_id
+                const groups = new Map();
+                for (const enrollment of allPending || []) {
+                    const key = `${enrollment.user_email}_${enrollment.course_id}`;
+                    if (!groups.has(key)) {
+                        groups.set(key, []);
+                    }
+                    groups.get(key).push(enrollment);
+                }
+
+                // For each group with duplicates, delete all but the first (latest)
+                let deletedCount = 0;
+                for (const [key, enrollments] of groups) {
+                    if (enrollments.length > 1) {
+                        console.log(`🔍 Group ${key}: ${enrollments.length} duplicates found`);
+                        
+                        // Keep the first one (already sorted by date desc), delete the rest
+                        const toDelete = enrollments.slice(1);
+                        console.log(`🗑️ Deleting ${toDelete.length} duplicates for ${key}`);
+                        
+                        for (const duplicate of toDelete) {
+                            const { error: deleteError } = await supabase
+                                .from('enrollments')
+                                .delete()
+                                .eq('id', duplicate.id);
+                            
+                            if (deleteError) {
+                                console.error('❌ Error deleting duplicate:', deleteError);
+                            } else {
+                                deletedCount++;
+                                console.log(`✅ Deleted duplicate: ${duplicate.id}`);
+                            }
+                        }
+                    }
+                }
+
+                console.log(`✅ EMERGENCY CLEANUP COMPLETED: ${deletedCount} duplicates removed`);
+                showToast(`✅ EMERGENCY CLEANUP: ${deletedCount} duplicates removed!`, 'success');
+                
+                // Refresh the enrollment list
+                await fetchAllEnrollments();
+                
+            } catch (error) {
+                console.error('❌ Emergency cleanup error:', error);
+                showToast('❌ Emergency cleanup failed: ' + error.message, 'error');
+            }
+        }
+
+        // DEBUG: Check what's actually in the database
+        async function debugUserData() {
+            console.log('🔍 DEBUGGING USER DATA...');
+            
+            try {
+                // Get a sample user
+                const { data: users, error: usersError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .limit(3);
+                
+                if (usersError) {
+                    console.error('❌ Error fetching users:', usersError);
+                    return;
+                }
+                
+                console.log('📊 SAMPLE USERS FROM PROFILES TABLE:');
+                users.forEach((user, index) => {
+                    console.log(`User ${index + 1}:`, {
+                        id: user.id,
+                        email: user.email,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        contact_number: user.contact_number,
+                        phone: user.phone,
+                        created_at: user.created_at,
+                        updated_at: user.updated_at
+                    });
+                });
+                
+                // Check auth.users table for one user
+                if (users.length > 0) {
+                    const sampleUser = users[0];
+                    console.log('🔍 CHECKING AUTH.USERS FOR:', sampleUser.email);
+                    
+                    try {
+                        const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(sampleUser.id);
+                        if (authError) {
+                            console.error('❌ Auth error:', authError);
+                        } else {
+                            console.log('📊 AUTH USER DATA:', {
+                                id: authUser.user?.id,
+                                email: authUser.user?.email,
+                                last_sign_in_at: authUser.user?.last_sign_in_at,
+                                user_metadata: authUser.user?.user_metadata,
+                                raw_user_meta_data: authUser.user?.raw_user_meta_data
+                            });
+                        }
+                    } catch (e) {
+                        console.error('❌ Error fetching auth user:', e);
+                    }
+                }
+                
+                // Check enrollments for progress data
+                const { data: enrollments, error: enrollmentsError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .limit(3);
+                
+                if (enrollmentsError) {
+                    console.error('❌ Error fetching enrollments:', enrollmentsError);
+                } else {
+                    console.log('📊 SAMPLE ENROLLMENTS:');
+                    enrollments.forEach((enrollment, index) => {
+                        console.log(`Enrollment ${index + 1}:`, {
+                            id: enrollment.id,
+                            user_email: enrollment.user_email,
+                            course_id: enrollment.course_id,
+                            status: enrollment.status,
+                            progress: enrollment.progress,
+                            enrolled_at: enrollment.enrolled_at
+                        });
+                    });
+                }
+                
+                // Check user_progress table
+                const { data: progress, error: progressError } = await supabase
+                    .from('user_progress')
+                    .select('*')
+                    .limit(3);
+                
+                if (progressError) {
+                    if (progressError.code === '42P01') {
+                        console.error('❌ CRITICAL: user_progress table does not exist!');
+                        console.error('🔧 SOLUTION: Run the create-user-progress-table.sql script in your Supabase SQL Editor');
+                    } else {
+                        console.error('❌ Error fetching user_progress:', progressError);
+                    }
+                } else {
+                    console.log('📊 SAMPLE USER PROGRESS:');
+                    progress.forEach((prog, index) => {
+                        console.log(`Progress ${index + 1}:`, {
+                            user_id: prog.user_id,
+                            course_id: prog.course_id,
+                            progress_percentage: prog.progress_percentage,
+                            completed_lessons: prog.completed_lessons,
+                            updated_at: prog.updated_at
+                        });
+                    });
+                }
+                
+                showToast('✅ Debug data logged to console. Check browser console for details.', 'success');
+                
+            } catch (error) {
+                console.error('❌ Debug error:', error);
+                showToast('❌ Debug failed: ' + error.message, 'error');
+            }
+        }
+
+        function startRealTimePolling() {
+            // Clear any existing interval
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+            
+            // Poll every 2 seconds for real-time updates - SUPABASE ONLY
+            pollingInterval = setInterval(async () => {
+                try {
+                    console.log('🔄 Real-time poll: Checking for new enrollments from Supabase...');
+                    await fetchAllEnrollments(); // Direct Supabase fetch
+                    updatePendingUsersCount(); // Update counts after each poll
+                } catch (error) {
+                    console.warn('⚠️ Real-time polling error:', error);
+                }
+            }, 2000); // 2 seconds - aggressive polling for Supabase only
+            
+            console.log('✅ Real-time polling started (every 3 seconds + localStorage every 1 second)');
+        }
+
+        function stopRealTimePolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                console.log('⏹️ Real-time polling stopped');
+            }
+            if (localStoragePollingInterval) {
+                clearInterval(localStoragePollingInterval);
+                localStoragePollingInterval = null;
+                console.log('⏹️ localStorage polling stopped');
+            }
+        }
+
+        // EMERGENCY: Direct database check function
+        async function emergencyDatabaseCheck() {
+            console.log('🚨 EMERGENCY: Direct database check starting...');
+            showToast('🚨 EMERGENCY: Checking database directly...', 'info');
+            
+            if (!supabase) {
+                showToast('❌ EMERGENCY: No Supabase connection!', 'error');
+                return;
+            }
+            
+            try {
+                // Direct query to Supabase with detailed logging
+                console.log('🔍 EMERGENCY: Querying Supabase enrollments table directly...');
+                const { data, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .order('enrolled_at', { ascending: false });
+
+                if (error) {
+                    console.error('❌ EMERGENCY: Supabase query error:', error);
+                    showToast('❌ EMERGENCY: Database query failed: ' + error.message, 'error');
+                    return;
+                }
+                
+                console.log('✅ EMERGENCY: Raw database data received:', data);
+                console.log('📊 EMERGENCY: Total enrollments in database:', data?.length || 0);
+                
+                // Log all enrollments with details
+                if (data && data.length > 0) {
+                    console.log('📋 EMERGENCY: All enrollments in database:');
+                    data.forEach((enrollment, index) => {
+                        console.log(`  ${index + 1}. ${enrollment.user_email} - ${enrollment.course_title} - ${enrollment.status} - ${enrollment.enrolled_at}`);
+                    });
+                    
+                    // Count by status
+                    const statusCounts = data.reduce((acc, e) => {
+                        acc[e.status] = (acc[e.status] || 0) + 1;
+                        return acc;
+                    }, {});
+                    console.log('📊 EMERGENCY: Status breakdown:', statusCounts);
+                    
+                    // Show results
+                    const pendingCount = data.filter(e => e.status === 'pending').length;
+                    const approvedCount = data.filter(e => e.status === 'approved').length;
+                    
+                    showToast(`🚨 EMERGENCY: Found ${data.length} total enrollments (${pendingCount} pending, ${approvedCount} approved)`, 'success');
+                    
+                    // Update the display immediately
+                    allEnrollments = data;
+                    displayEnrollments(data);
+                    updatePendingUsersCount();
+                    
+                } else {
+                    console.log('⚠️ EMERGENCY: No enrollments found in database');
+                    showToast('⚠️ EMERGENCY: No enrollments found in database!', 'error');
+                }
+                
+            } catch (error) {
+                console.error('❌ EMERGENCY: Critical error:', error);
+                showToast('❌ EMERGENCY: Critical error: ' + error.message, 'error');
+            }
+        }
+
+        // DEBUG: Show all enrollment data in detail
+        function debugAllEnrollments() {
+            console.log('🔍 DEBUG: Starting comprehensive enrollment debug...');
+            
+            // 1. Check localStorage
+            const localEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+            console.log('📊 localStorage enrollments:', localEnrollments);
+            console.log('📊 localStorage pending:', localEnrollments.filter(e => e.status === 'pending'));
+            
+            // 2. Check current allEnrollments array
+            console.log('📊 allEnrollments array:', allEnrollments);
+            console.log('📊 allEnrollments pending:', allEnrollments.filter(e => e.status === 'pending'));
+            
+            // 3. Check what's being displayed
+            const tbody = document.getElementById('enrollmentsTableBody');
+            console.log('📊 Table body HTML:', tbody.innerHTML);
+            
+            // 4. Show detailed breakdown
+            const pendingEnrollments = allEnrollments.filter(e => e.status === 'pending');
+            console.log('📊 DETAILED PENDING BREAKDOWN:');
+            pendingEnrollments.forEach((enrollment, index) => {
+                console.log(`  ${index + 1}. ID: ${enrollment.id}`);
+                console.log(`     Email: ${enrollment.user_email}`);
+                console.log(`     Course: ${enrollment.course_title}`);
+                console.log(`     Status: ${enrollment.status}`);
+                console.log(`     Date: ${enrollment.enrolled_at}`);
+                console.log(`     Source: ${enrollment.source || 'unknown'}`);
+                console.log('     ---');
+            });
+            
+            // 5. Show alert with summary
+            const summary = `
+DEBUG SUMMARY:
+- localStorage enrollments: ${localEnrollments.length}
+- localStorage pending: ${localEnrollments.filter(e => e.status === 'pending').length}
+- allEnrollments total: ${allEnrollments.length}
+- allEnrollments pending: ${pendingEnrollments.length}
+- Table rows: ${tbody.children.length}
+
+Check console for detailed breakdown.
+            `;
+            
+            alert(summary);
+            showToast(`🔍 Debug complete. Check console for details.`, 'info');
+        }
+
+        // CRITICAL: Force refresh all enrollments from all sources
+        async function forceRefreshAllEnrollments() {
+            console.log('🚨 CRITICAL: Force refreshing ALL enrollments from ALL sources...');
+            showToast('🔄 Force refreshing all enrollments...', 'info');
+            
+            try {
+                // Clear current data
+                allEnrollments = [];
+                
+                // 1. Force fetch from Supabase
+                if (supabase) {
+                    console.log('🔍 Force fetching from Supabase...');
+                    const { data: supabaseData, error: supabaseError } = await supabase
+                        .from('enrollments')
+                        .select('*')
+                        .order('enrolled_at', { ascending: false });
+                    
+                    if (supabaseError) {
+                        console.error('❌ Supabase error:', supabaseError);
+                    } else {
+                        console.log('✅ Supabase data:', supabaseData);
+                        if (supabaseData && supabaseData.length > 0) {
+                            supabaseData.forEach(enrollment => {
+                                enrollment.source = 'supabase';
+                                allEnrollments.push(enrollment);
+                            });
+                        }
+                    }
+                }
+                
+                // 2. Force fetch from localStorage
+                console.log('🔍 Force fetching from localStorage...');
+                const localData = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                console.log('✅ localStorage data:', localData);
+                
+                if (localData && localData.length > 0) {
+                    localData.forEach(enrollment => {
+                        // Only add if not already in allEnrollments (avoid duplicates)
+                        const exists = allEnrollments.find(e => e.id === enrollment.id);
+                        if (!exists) {
+                            enrollment.source = 'localStorage';
+                            allEnrollments.push(enrollment);
+                        }
+                    });
+                }
+                
+                // 3. Remove duplicates and sort
+                const uniqueEnrollments = [];
+                const seenIds = new Set();
+                
+                allEnrollments.forEach(enrollment => {
+                    if (!seenIds.has(enrollment.id)) {
+                        seenIds.add(enrollment.id);
+                        uniqueEnrollments.push(enrollment);
+                    }
+                });
+                
+                allEnrollments = uniqueEnrollments.sort((a, b) => 
+                    new Date(b.enrolled_at) - new Date(a.enrolled_at)
+                );
+                
+                console.log('🎯 FINAL allEnrollments:', allEnrollments);
+                console.log('🎯 Pending enrollments:', allEnrollments.filter(e => e.status === 'pending'));
+                
+                // 4. Force display
+                displayEnrollments(allEnrollments);
+                updatePendingUsersCount();
+                
+                showToast(`✅ Force refresh complete! Found ${allEnrollments.length} total enrollments (${allEnrollments.filter(e => e.status === 'pending').length} pending)`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Force refresh error:', error);
+                showToast('❌ Force refresh failed: ' + error.message, 'error');
+            }
+        }
+
+        // Search for specific user enrollment
+        async function searchSpecificUser(email) {
+            console.log(`🔍 Searching for user: ${email}`);
+            showToast(`🔍 Searching for ${email}...`, 'info');
+            
+            try {
+                let foundEnrollments = [];
+                
+                // 1. Search in Supabase
+                if (supabase) {
+                    const { data: supabaseResults, error } = await supabase
+                        .from('enrollments')
+                        .select('*')
+                        .ilike('user_email', `%${email}%`)
+                        .order('enrolled_at', { ascending: false });
+                    
+                    if (error) {
+                        console.error('❌ Supabase search error:', error);
+                    } else if (supabaseResults && supabaseResults.length > 0) {
+                        console.log(`✅ Found ${supabaseResults.length} enrollments in Supabase for ${email}`);
+                        supabaseResults.forEach(enrollment => {
+                            enrollment.source = 'supabase';
+                            foundEnrollments.push(enrollment);
+                        });
+                    }
+                }
+                
+                // 2. Search in localStorage
+                const localEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                const localResults = localEnrollments.filter(e => 
+                    e.user_email && e.user_email.toLowerCase().includes(email.toLowerCase())
+                );
+                
+                if (localResults.length > 0) {
+                    console.log(`✅ Found ${localResults.length} enrollments in localStorage for ${email}`);
+                    localResults.forEach(enrollment => {
+                        enrollment.source = 'localStorage';
+                        foundEnrollments.push(enrollment);
+                    });
+                }
+                
+                // 3. Remove duplicates
+                const uniqueEnrollments = [];
+                const seenIds = new Set();
+                foundEnrollments.forEach(enrollment => {
+                    if (!seenIds.has(enrollment.id)) {
+                        seenIds.add(enrollment.id);
+                        uniqueEnrollments.push(enrollment);
+                    }
+                });
+                
+                console.log(`🎯 FINAL RESULTS for ${email}:`, uniqueEnrollments);
+                
+                if (uniqueEnrollments.length > 0) {
+                    // Display only these enrollments
+                    displayEnrollments(uniqueEnrollments);
+                    showToast(`✅ Found ${uniqueEnrollments.length} enrollment(s) for ${email}`, 'success');
+                } else {
+                    showToast(`❌ No enrollments found for ${email}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('❌ Search error:', error);
+                showToast('❌ Search failed: ' + error.message, 'error');
+            }
+        }
+
+        // Debug localStorage data
+        function debugLocalStorageData() {
+            console.log('🔍 DEBUG: Checking all localStorage data...');
+            
+            const localStorageKeys = [
+                'enrollments',
+                'user_progress',
+                'course_progress',
+                'user_data',
+                'progress_data',
+                'course_data'
+            ];
+            
+            let allData = {};
+            
+            for (const key of localStorageKeys) {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    try {
+                        allData[key] = JSON.parse(data);
+                        console.log(`📊 ${key}:`, allData[key]);
+                    } catch (e) {
+                        allData[key] = data;
+                        console.log(`📊 ${key} (raw):`, data);
+                    }
+                }
+            }
+            
+            // Also check for any keys that might contain user data
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.includes('progress') || key.includes('enrollment') || key.includes('user'))) {
+                    const data = localStorage.getItem(key);
+                    try {
+                        allData[key] = JSON.parse(data);
+                        console.log(`📊 ${key}:`, allData[key]);
+                    } catch (e) {
+                        allData[key] = data;
+                        console.log(`📊 ${key} (raw):`, data);
+                    }
+                }
+            }
+            
+            const summary = `
+LOCALSTORAGE DEBUG SUMMARY:
+Found ${Object.keys(allData).length} data sources:
+${Object.keys(allData).map(key => `- ${key}: ${Array.isArray(allData[key]) ? allData[key].length + ' items' : 'data'}`).join('\n')}
+
+Check console for detailed data.
+            `;
+            
+            alert(summary);
+            showToast(`🔍 localStorage debug complete. Check console for details.`, 'info');
+        }
+
+        // Scroll to enrollments section and highlight it
+        function scrollToEnrollments() {
+            console.log('🔍 Scrolling to enrollments section...');
+            const enrollmentsSection = document.querySelector('.bg-white.rounded-lg.shadow-lg.overflow-hidden.mt-6.fade-in.border-4.border-red-500');
+            if (enrollmentsSection) {
+                enrollmentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                enrollmentsSection.style.animation = 'pulse 2s infinite';
+                setTimeout(() => {
+                    enrollmentsSection.style.animation = '';
+                }, 5000);
+                showToast('🔍 Scrolled to Course Enrollments section!', 'info');
+            } else {
+                showToast('❌ Could not find enrollments section!', 'error');
+            }
+        }
+
+        // Manual localStorage check function
+        function checkLocalStorageNow() {
+            console.log('🔍 MANUAL: Checking localStorage for new enrollments...');
+            try {
+                const localEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                const pendingEnrollments = localEnrollments.filter(e => e.status === 'pending');
+                
+                console.log('📊 localStorage enrollments found:', localEnrollments.length);
+                console.log('📊 Pending enrollments found:', pendingEnrollments.length);
+                console.log('📊 All localStorage enrollments:', localEnrollments);
+                
+                if (pendingEnrollments.length > 0) {
+                    console.log('🆕 Found pending enrollments in localStorage!');
+                    showToast(`🆕 Found ${pendingEnrollments.length} pending enrollment(s) in localStorage!`, 'success');
+                    fetchAllEnrollments(); // Refresh the display
+                    updatePendingUsersCount();
+                } else {
+                    console.log('ℹ️ No pending enrollments found in localStorage');
+                    showToast('ℹ️ No pending enrollments found in localStorage', 'info');
+                }
+            } catch (error) {
+                console.error('❌ Error checking localStorage:', error);
+                showToast('❌ Error checking localStorage: ' + error.message, 'error');
+            }
+        }
+
+        // Dispatch real-time events for enrollment updates
+        function dispatchRealTimeEvents(enrollment) {
+            console.log('🚀 Dispatching real-time events for enrollment:', enrollment);
+            
+            // Store event in localStorage for cross-application communication
+            const adminEvent = {
+                type: 'enrollment-approved',
+                enrollmentId: enrollment.id,
+                userId: enrollment.user_id,
+                userEmail: enrollment.user_email,
+                courseId: enrollment.course_id,
+                courseTitle: enrollment.course_title,
+                status: enrollment.status,
+                timestamp: Date.now()
+            };
+            
+            // Store in localStorage for main application to pick up
+            const existingEvents = JSON.parse(localStorage.getItem('admin-events') || '[]');
+            existingEvents.push(adminEvent);
+            
+            // Keep only last 50 events to prevent localStorage bloat
+            if (existingEvents.length > 50) {
+                existingEvents.splice(0, existingEvents.length - 50);
+            }
+            
+            localStorage.setItem('admin-events', JSON.stringify(existingEvents));
+            console.log('💾 Stored admin event in localStorage:', adminEvent);
+            
+            // Also dispatch window events for same-page components
+            const events = [
+                'admin-approval',
+                'enrollment-status-changed', 
+                'course-access-granted',
+                'realtime-enrollment-sync',
+                'force-course-card-refresh'
+            ];
+            
+            events.forEach(eventType => {
+                const event = new CustomEvent(eventType, {
+                    detail: {
+                        enrollmentId: enrollment.id,
+                        userEmail: enrollment.user_email,
+                        courseId: enrollment.course_id,
+                        courseTitle: enrollment.course_title,
+                        status: enrollment.status,
+                        timestamp: new Date().toISOString()
+                    }
+                });
+                window.dispatchEvent(event);
+                console.log('📡 Dispatched window event:', eventType);
+            });
+        }
+
+        // Update pending users count
+        function updatePendingUsersCount() {
+            const pendingCount = allEnrollments.filter(e => e.status === 'pending').length;
+            document.getElementById('pendingUsers').textContent = pendingCount;
+            
+            // Update total users count
+            const totalCount = allUsers.length;
+            document.getElementById('totalUsers').textContent = totalCount;
+            
+            // Update approved users count
+            const approvedCount = allUsers.filter(u => u.approval_status === 'approved').length;
+            document.getElementById('approvedUsers').textContent = approvedCount;
+        }
+
+        async function checkForNewEnrollments() {
+            try {
+                console.log('🔄 Real-time poll: Checking for new enrollments from ALL sources...');
+                
+                // Check localStorage first (where new enrollments are stored immediately)
+                const localEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                const localPendingCount = localEnrollments.filter(e => e.status === 'pending').length;
+                
+                console.log(`📊 localStorage pending enrollments: ${localPendingCount}`);
+                
+                // Check Supabase if connected
+                let supabaseCount = 0;
+                if (supabase) {
+                    const { data, error } = await supabase
+                        .from('enrollments')
+                        .select('*')
+                        .order('enrolled_at', { ascending: false });
+
+                    if (error) {
+                        console.warn('⚠️ Supabase check failed:', error);
+                    } else {
+                        supabaseCount = data?.length || 0;
+                        console.log(`📊 Supabase enrollment count: ${supabaseCount}`);
+                    }
+                }
+                
+                // Calculate total unique enrollments
+                const totalEnrollments = Math.max(localPendingCount, supabaseCount);
+                console.log(`📊 Total enrollment count: ${totalEnrollments}, Previous count: ${lastEnrollmentCount}`);
+                
+                // Check if there are new enrollments
+                if (totalEnrollments > lastEnrollmentCount) {
+                    const newEnrollments = totalEnrollments - lastEnrollmentCount;
+                    console.log(`🆕 Found ${newEnrollments} new enrollment(s)!`);
+                    
+                    // Update data and display
+                    await fetchAllEnrollments(); // Use the comprehensive fetch function
+                    lastEnrollmentCount = totalEnrollments;
+                    
+                    // Show notification for new enrollments
+                    showToast(`🆕 ${newEnrollments} new enrollment request(s) received!`, 'success');
+                    
+                    // Highlight new enrollments
+                    highlightNewEnrollments();
+                } else if (totalEnrollments < lastEnrollmentCount) {
+                    console.log(`📉 Enrollment count decreased from ${lastEnrollmentCount} to ${totalEnrollments}`);
+                    await fetchAllEnrollments(); // Use the comprehensive fetch function
+                    lastEnrollmentCount = totalEnrollments;
+                } else {
+                    console.log('✅ No new enrollments found');
+                }
+                
+                // Also check for user updates
+                await fetchUsers();
+                
+            } catch (error) {
+                console.error('❌ Error in real-time poll:', error);
+            }
+        }
+
+        // Test function to create a sample enrollment
+        async function createTestEnrollment() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                // Generate proper UUID for user_id
+                const generateUUID = () => {
+                    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                        const r = Math.random() * 16 | 0;
+                        const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                        return v.toString(16);
+                    });
+                };
+
+                const testEnrollment = {
+                    user_id: generateUUID(), // Proper UUID format
+                    user_email: 'test@example.com',
+                    course_id: generateUUID(), // Proper UUID format
+                    course_title: 'Test Course - ' + new Date().toLocaleTimeString(),
+                    status: 'pending',
+                    enrolled_at: new Date().toISOString(),
+                    progress: 0
+                };
+
+                console.log('🧪 Creating test enrollment:', testEnrollment);
+                
+                const { data, error } = await supabase
+                    .from('enrollments')
+                    .insert([testEnrollment])
+                    .select();
+
+                if (error) throw error;
+
+                console.log('✅ Test enrollment created:', data);
+                showToast('✅ Test enrollment created successfully!', 'success');
+                
+                // Refresh enrollments immediately
+                await fetchEnrollments();
+                
+            } catch (error) {
+                console.error('❌ Error creating test enrollment:', error);
+                showToast('❌ Failed to create test enrollment: ' + error.message, 'error');
+            }
+        }
+
+        // Debug function to test database access
+        async function debugDatabaseAccess() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🔍 Debugging database access...');
+                
+                // Test 1: Check if enrollments table exists
+                console.log('🔍 Test 1: Checking enrollments table...');
+                const { data: tableTest, error: tableError } = await supabase
+                    .from('enrollments')
+                    .select('count')
+                    .limit(1);
+                
+                if (tableError) {
+                    console.error('❌ Enrollments table access failed:', tableError);
+                    showToast('❌ Cannot access enrollments table: ' + tableError.message, 'error');
+                    return;
+                }
+                
+                console.log('✅ Enrollments table accessible');
+                
+                // Test 2: Get total count
+                console.log('🔍 Test 2: Getting total count...');
+                const { count, error: countError } = await supabase
+                    .from('enrollments')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (countError) {
+                    console.error('❌ Count query failed:', countError);
+                } else {
+                    console.log('✅ Total enrollments in database:', count);
+                }
+                
+                // Test 3: Get pending enrollments specifically
+                console.log('🔍 Test 3: Getting pending enrollments...');
+                const { data: pendingData, error: pendingError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('status', 'pending');
+                
+                if (pendingError) {
+                    console.error('❌ Pending enrollments query failed:', pendingError);
+                } else {
+                    console.log('✅ Pending enrollments found:', pendingData?.length || 0);
+                    pendingData?.forEach((enrollment, index) => {
+                        console.log(`📋 Pending ${index + 1}:`, enrollment);
+                    });
+                }
+                
+                // Test 4: Get all enrollments to see what's actually there
+                console.log('🔍 Test 4: Getting all enrollments...');
+                const { data: allData, error: allError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .order('enrolled_at', { ascending: false });
+                
+                if (allError) {
+                    console.error('❌ All enrollments query failed:', allError);
+                } else {
+                    console.log('✅ All enrollments found:', allData?.length || 0);
+                    console.log('📊 Status breakdown:', allData?.reduce((acc, e) => {
+                        acc[e.status] = (acc[e.status] || 0) + 1;
+                        return acc;
+                    }, {}));
+                    allData?.forEach((enrollment, index) => {
+                        console.log(`📋 Enrollment ${index + 1}:`, {
+                            id: enrollment.id,
+                            user_email: enrollment.user_email,
+                            course_title: enrollment.course_title,
+                            status: enrollment.status,
+                            enrolled_at: enrollment.enrolled_at
+                        });
+                    });
+                }
+                
+                // Test 5: Check for specific user enrollments
+                console.log('🔍 Test 5: Checking for ericmnisi007@gmail.com enrollments...');
+                const { data: userData, error: userError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('user_email', 'ericmnisi007@gmail.com')
+                    .order('enrolled_at', { ascending: false });
+                
+                if (userError) {
+                    console.error('❌ User enrollments query failed:', userError);
+                } else {
+                    console.log('✅ User enrollments found:', userData?.length || 0);
+                    userData?.forEach((enrollment, index) => {
+                        console.log(`📋 User Enrollment ${index + 1}:`, {
+                            id: enrollment.id,
+                            user_email: enrollment.user_email,
+                            course_title: enrollment.course_title,
+                            status: enrollment.status,
+                            enrolled_at: enrollment.enrolled_at
+                        });
+                    });
+                }
+                
+                showToast(`🔍 Debug complete: ${count || 0} total, ${pendingData?.length || 0} pending, ${userData?.length || 0} user enrollments`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Debug failed:', error);
+                showToast('❌ Debug failed: ' + error.message, 'error');
+            }
+        }
+
+        function highlightNewEnrollments() {
+            // Add a temporary highlight class to new enrollments
+            const rows = document.querySelectorAll('#enrollmentsTableBody tr');
+            rows.forEach((row, index) => {
+                if (index < 3) { // Highlight first 3 rows (newest enrollments)
+                    row.classList.add('bg-yellow-50', 'border-l-4', 'border-yellow-400');
+                    setTimeout(() => {
+                        row.classList.remove('bg-yellow-50', 'border-l-4', 'border-yellow-400');
+                    }, 5000); // Remove highlight after 5 seconds
+                }
+            });
+        }
+
+        function showPendingOnly() {
+            const pendingEnrollments = allEnrollments.filter(enrollment => enrollment.status === 'pending');
+            displayEnrollments(pendingEnrollments);
+            showToast(`📋 Showing ${pendingEnrollments.length} pending enrollments`, 'success');
+        }
+
+        function showAllEnrollments() {
+            displayEnrollments(allEnrollments);
+            showToast(`📋 Showing all ${allEnrollments.length} enrollments`, 'success');
+        }
+
+        // Function to show enrollments for specific user
+        async function showUserEnrollments() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🔍 Fetching enrollments for ericmnisi007@gmail.com...');
+                const { data, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('user_email', 'ericmnisi007@gmail.com')
+                    .order('enrolled_at', { ascending: false });
+
+                if (error) throw error;
+
+                console.log('✅ User enrollments found:', data);
+                displayEnrollments(data || []);
+                showToast(`📋 Showing ${data?.length || 0} enrollments for ericmnisi007@gmail.com`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Error fetching user enrollments:', error);
+                showToast('❌ Failed to fetch user enrollments: ' + error.message, 'error');
+            }
+        }
+
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="showUserProfile('${user.id}')">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
+                                ${getInitials(user)}
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${user.first_name} ${user.last_name}</div>
+                                <div class="text-sm text-gray-500">${user.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            ${user.role || 'student'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(user.approval_status)}">
+                            ${user.approval_status || 'pending'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${new Date(user.created_at).toLocaleDateString()}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
+                        <button onclick="approveUser('${user.id}')" class="text-green-600 hover:text-green-900 mr-3 transition-colors">Approve</button>
+                        <button onclick="rejectUser('${user.id}')" class="text-red-600 hover:text-red-900 transition-colors">Reject</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayEnrollments(enrollments) {
+            const tbody = document.getElementById('enrollmentsTableBody');
+            
+            if (enrollments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No enrollments found</td></tr>';
+                return;
+            }
+
+            // 🚨 CRITICAL FIX: Show ALL enrollments, including local ones
+            const validEnrollments = enrollments.filter(enrollment => {
+                // Show all enrollments that have an ID (local or database)
+                return enrollment.id && enrollment.id.length > 0;
+            });
+            
+            if (validEnrollments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No valid enrollments found</td></tr>';
+                return;
+            }
+
+            // Sort enrollments: pending first, then by date (newest first)
+            const sortedEnrollments = validEnrollments.sort((a, b) => {
+                if (a.status === 'pending' && b.status !== 'pending') return -1;
+                if (a.status !== 'pending' && b.status === 'pending') return 1;
+                return new Date(b.enrolled_at) - new Date(a.enrolled_at);
+            });
+
+            tbody.innerHTML = sortedEnrollments.map(enrollment => {
+                const isPending = enrollment.status === 'pending';
+                const rowClass = isPending ? 'bg-yellow-50 border-l-4 border-yellow-400' : 'hover:bg-gray-50';
+                
+                return `
+                    <tr class="${rowClass} transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div class="flex items-center">
+                                ${enrollment.user_email}
+                                ${isPending ? '<span class="ml-2 px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full">NEW</span>' : ''}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${enrollment.course_title}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(enrollment.status)}">
+                                ${enrollment.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${new Date(enrollment.enrolled_at).toLocaleDateString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            ${enrollment.status === 'pending' ? 
+                                `<button onclick="approveEnrollment('${enrollment.id}')" class="text-green-600 hover:text-green-900 mr-3 transition-colors font-semibold">✓ Approve</button>
+                                 <button onclick="rejectEnrollment('${enrollment.id}')" class="text-red-600 hover:text-red-900 transition-colors font-semibold">✗ Reject</button>` :
+                                `<button onclick="approveEnrollment('${enrollment.id}')" class="text-green-600 hover:text-green-900 mr-3 transition-colors">Approve</button>
+                                 <button onclick="rejectEnrollment('${enrollment.id}')" class="text-red-600 hover:text-red-900 transition-colors">Reject</button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Log what we're displaying
+            const pendingCount = sortedEnrollments.filter(e => e.status === 'pending').length;
+            const filteredCount = enrollments.length - validEnrollments.length;
+            console.log(`📋 Displaying ${validEnrollments.length} valid enrollments (${pendingCount} pending)`);
+            if (filteredCount > 0) {
+                console.log(`⚠️ Filtered out ${filteredCount} enrollments with invalid IDs`);
+            }
+        }
+
+        function updateStats(users) {
+            const total = users.length;
+            const approved = users.filter(u => u.approval_status === 'approved').length;
+            const pending = users.filter(u => u.approval_status === 'pending').length;
+
+            document.getElementById('totalUsers').textContent = total;
+            document.getElementById('approvedUsers').textContent = approved;
+            document.getElementById('pendingUsers').textContent = pending;
+        }
+
+        function getInitials(user) {
+            if (user.first_name && user.last_name) return user.first_name[0] + user.last_name[0];
+            if (user.first_name) return user.first_name[0];
+            return user.email[0];
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'approved': return 'status-approved';
+                case 'pending': return 'status-pending';
+                case 'rejected': return 'status-rejected';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        async function approveUser(userId) {
+            if (!supabase) return;
+            try {
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({ approval_status: 'approved' })
+                    .eq('id', userId);
+                
+                if (error) throw error;
+                showToast('✅ User approved successfully!', 'success');
+                await fetchUsers(); // Refresh data
+            } catch (error) {
+                showToast('❌ Failed to approve user: ' + error.message, 'error');
+            }
+        }
+
+        async function rejectUser(userId) {
+            if (!supabase) return;
+            try {
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({ approval_status: 'rejected' })
+                    .eq('id', userId);
+                
+                if (error) throw error;
+                showToast('✅ User rejected successfully!', 'success');
+                await fetchUsers(); // Refresh data
+            } catch (error) {
+                showToast('❌ Failed to reject user: ' + error.message, 'error');
+            }
+        }
+
+        async function approveEnrollment(enrollmentId) {
+            if (!supabase) return;
+            
+            console.log('🚀 SENIOR DEVELOPER: Starting enrollment approval for ID:', enrollmentId);
+            
+            // 🚨 CRITICAL FIX: Handle local IDs by syncing to database first
+            if (enrollmentId && enrollmentId.startsWith('local_')) {
+                console.log('🔄 Local ID detected, syncing to database first...');
+                
+                // Find the enrollment in localStorage
+                const localEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                const localEnrollment = localEnrollments.find(e => e.id === enrollmentId);
+                
+                if (!localEnrollment) {
+                    console.error('❌ Local enrollment not found:', enrollmentId);
+                    showToast('❌ Error: Local enrollment not found', 'error');
+                    return;
+                }
+                
+                // Sync to database first
+                const { data: syncedEnrollment, error: syncError } = await supabase
+                    .from('enrollments')
+                    .insert({
+                        user_email: localEnrollment.user_email,
+                        course_id: localEnrollment.course_id,
+                        course_title: localEnrollment.course_title,
+                        status: 'approved', // Directly approve
+                        enrolled_at: localEnrollment.enrolled_at || new Date().toISOString(),
+                        approved_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
+                
+                if (syncError) {
+                    console.error('❌ Error syncing enrollment to database:', syncError);
+                    showToast('❌ Error: Could not sync enrollment to database', 'error');
+                    return;
+                }
+                
+                console.log('✅ Enrollment synced and approved:', syncedEnrollment);
+                
+                // Update localStorage
+                const updatedLocalEnrollments = localEnrollments.map(e => 
+                    e.id === enrollmentId ? { ...e, status: 'approved', id: syncedEnrollment.id } : e
+                );
+                localStorage.setItem('enrollments', JSON.stringify(updatedLocalEnrollments));
+                
+                // Dispatch real-time events
+                dispatchRealTimeEvents(syncedEnrollment);
+                
+                showToast('✅ Enrollment synced and approved successfully!', 'success');
+                await fetchAllEnrollments(); // Refresh the list
+                return;
+            }
+            
+            // Handle database IDs (existing logic)
+            if (!enrollmentId || enrollmentId.length < 30) {
+                console.warn('⚠️ Invalid enrollment ID for approval:', enrollmentId);
+                showToast('⚠️ Cannot approve: Invalid enrollment ID', 'error');
+                return;
+            }
+            
+            try {
+                console.log('🚀 SENIOR DEVELOPER: Starting bulletproof enrollment approval...');
+                console.log('📋 Enrollment ID to approve:', enrollmentId);
+                
+                // First get the enrollment details from database
+                const { data: enrollmentData, error: fetchError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('id', enrollmentId)
+                    .single();
+                
+                if (fetchError) {
+                    console.error('❌ Error fetching enrollment data:', fetchError);
+                    showToast('❌ Error: Could not fetch enrollment data', 'error');
+                    return;
+                }
+                
+                if (!enrollmentData) {
+                    console.error('❌ No enrollment data found for ID:', enrollmentId);
+                    showToast('❌ Error: Enrollment not found', 'error');
+                    return;
+                }
+                
+                console.log('📋 Enrollment data for approval:', enrollmentData);
+                
+                // 🚨 CRITICAL: Check if already approved to prevent double-processing
+                if (enrollmentData.status === 'approved') {
+                    console.log('⚠️ Enrollment already approved, skipping...');
+                    showToast('ℹ️ Enrollment already approved!', 'info');
+                    return;
+                }
+                
+                // Update the enrollment status in Supabase with timestamp
+                const { error } = await supabase
+                    .from('enrollments')
+                    .update({ 
+                        status: 'approved',
+                        approved_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', enrollmentId);
+                
+                if (error) {
+                    console.error('❌ Error updating enrollment status:', error);
+                    showToast('❌ Failed to approve enrollment: ' + error.message, 'error');
+                    return;
+                }
+                
+                console.log('✅ Enrollment approved in Supabase');
+                
+                // 🚨 CRITICAL: Update localStorage IMMEDIATELY to prevent sync issues
+                try {
+                    const existingEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                    const updatedEnrollments = existingEnrollments.map((enrollment) => {
+                        if (enrollment.id === enrollmentId) {
+                            return { 
+                                ...enrollment, 
+                                status: 'approved',
+                                approved_at: new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            };
+                        }
+                        return enrollment;
+                    });
+                    localStorage.setItem('enrollments', JSON.stringify(updatedEnrollments));
+                    console.log('💾 Updated localStorage immediately to prevent sync issues');
+                } catch (localError) {
+                    console.warn('Error updating localStorage:', localError);
+                }
+                
+                // 🚨 CRITICAL: Dispatch comprehensive approval events for real-time sync
+                dispatchRealTimeEvents(enrollmentData);
+                
+                // Also dispatch a simple approval event for the new simple system
+                window.dispatchEvent(new CustomEvent('admin-approval', {
+                    detail: {
+                        courseId: enrollmentData.course_id,
+                        userEmail: enrollmentData.user_email,
+                        status: 'approved',
+                        enrollment: enrollmentData
+                    }
+                }));
+                
+                console.log('🔔 SIMPLE APPROVAL EVENT DISPATCHED:', enrollmentData.course_id);
+                
+                // Refresh the enrollment list to show updated status
+                await fetchAllEnrollments();
+                
+                showToast('✅ Enrollment approved successfully! Course access granted.', 'success');
+                
+                console.log('🎉 BULLETPROOF ENROLLMENT APPROVAL COMPLETED!');
+                
+            } catch (error) {
+                console.error('❌ CRITICAL ERROR in approveEnrollment:', error);
+                showToast('❌ Failed to approve enrollment: ' + error.message, 'error');
+            }
+        }
+
+        async function rejectEnrollment(enrollmentId) {
+            if (!supabase) return;
+            try {
+                const { error } = await supabase
+                    .from('enrollments')
+                    .update({ status: 'rejected' })
+                    .eq('id', enrollmentId);
+                
+                if (error) throw error;
+                showToast('✅ Enrollment rejected successfully!', 'success');
+                await fetchEnrollments(); // Refresh data
+            } catch (error) {
+                showToast('❌ Failed to reject enrollment: ' + error.message, 'error');
+            }
+        }
+
+        function exportData() {
+            const csvContent = [
+                ['Name', 'Email', 'Role', 'Status', 'Registered Date'],
+                ...allUsers.map(user => [
+                    `${user.first_name} ${user.last_name}`,
+                    user.email,
+                    user.role || 'student',
+                    user.approval_status || 'pending',
+                    new Date(user.created_at).toLocaleDateString()
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showToast('✅ Data exported successfully!', 'success');
+        }
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = type === 'success' ? 'success-toast' : 'error-toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Search and filter functionality
+        document.getElementById('userSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const statusFilter = document.getElementById('userStatusFilter').value;
+            
+            const filteredUsers = allUsers.filter(user => {
+                const matchesSearch = !searchTerm || 
+                    user.first_name?.toLowerCase().includes(searchTerm) ||
+                    user.last_name?.toLowerCase().includes(searchTerm) ||
+                    user.email?.toLowerCase().includes(searchTerm);
+                
+                const matchesStatus = statusFilter === 'all' || user.approval_status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            displayUsers(filteredUsers);
+        });
+
+        document.getElementById('userStatusFilter').addEventListener('change', function(e) {
+            document.getElementById('userSearch').dispatchEvent(new Event('input'));
+        });
+
+        document.getElementById('enrollmentSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const statusFilter = document.getElementById('enrollmentStatusFilter').value;
+            
+            const filteredEnrollments = allEnrollments.filter(enrollment => {
+                const matchesSearch = !searchTerm || 
+                    enrollment.user_email?.toLowerCase().includes(searchTerm) ||
+                    enrollment.course_title?.toLowerCase().includes(searchTerm);
+                
+                const matchesStatus = statusFilter === 'all' || enrollment.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            displayEnrollments(filteredEnrollments);
+        });
+
+        document.getElementById('enrollmentStatusFilter').addEventListener('change', function(e) {
+            document.getElementById('enrollmentSearch').dispatchEvent(new Event('input'));
+        });
+
+        // Auto-initialize on page load
+        window.addEventListener('load', () => {
+            console.log('🚀 Admin Dashboard Standalone loaded');
+            initializeSupabase();
+            
+            // Start real-time polling after initialization
+            setTimeout(() => {
+                startRealTimePolling();
+            }, 2000);
+        });
+
+        // Clean up polling when page is unloaded
+        window.addEventListener('beforeunload', () => {
+            stopRealTimePolling();
+        });
+
+        // Listen for enrollment events from the main app
+        window.addEventListener('refresh-admin-dashboard', (event) => {
+            console.log('🔄 Received refresh-admin-dashboard event:', event.detail);
+            setTimeout(() => {
+                fetchEnrollments();
+            }, 1000);
+        });
+
+        window.addEventListener('refresh-enrollment-management', (event) => {
+            console.log('🔄 Received refresh-enrollment-management event:', event.detail);
+            setTimeout(() => {
+                fetchEnrollments();
+            }, 1000);
+        });
+
+        // 🚨 CRITICAL: Listen for instructor dashboard refresh events
+        window.addEventListener('refresh-instructor-dashboard', (event) => {
+            console.log('🔄 SENIOR DEVELOPER: Received refresh-instructor-dashboard event:', event.detail);
+            if (event.detail && event.detail.newEnrollment) {
+                console.log('📋 New enrollment received:', event.detail.newEnrollment);
+                showToast(`🆕 New enrollment: ${event.detail.newEnrollment.course_title}`, 'success');
+                
+                // 🚨 CRITICAL: Immediately fetch ALL enrollments from ALL sources
+                console.log('🚀 Triggering comprehensive enrollment fetch...');
+                setTimeout(() => {
+                    fetchAllEnrollments();
+                }, 300);
+                
+                // Update pending users count
+                updatePendingUsersCount();
+            }
+        });
+
+        // Listen for enrollment submitted events
+        window.addEventListener('enrollment-submitted', (event) => {
+            console.log('🔄 SENIOR DEVELOPER: Received enrollment-submitted event:', event.detail);
+            showToast(`📋 New enrollment submitted: ${event.detail.courseId}`, 'success');
+            
+            // 🚨 CRITICAL: Immediately fetch ALL enrollments from ALL sources
+            console.log('🚀 Triggering comprehensive enrollment fetch...');
+            setTimeout(() => {
+                fetchAllEnrollments();
+                updatePendingUsersCount();
+            }, 300);
+        });
+
+        // Listen for force-cloud-sync events
+        window.addEventListener('force-cloud-sync', (event) => {
+            console.log('🔄 SENIOR DEVELOPER: Received force-cloud-sync event:', event.detail);
+            // 🚨 CRITICAL: Trigger immediate comprehensive data refresh
+            console.log('🚀 Triggering comprehensive enrollment fetch...');
+            setTimeout(() => {
+                fetchAllEnrollments();
+                updatePendingUsersCount();
+            }, 200);
+        });
+
+        // 🚨 NEW: Check localStorage for pending enrollments
+        function checkLocalStorageEnrollments() {
+            console.log('🔍 Checking localStorage for pending enrollments...');
+            const localEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+            const pendingLocalEnrollments = localEnrollments.filter(e => e.status === 'pending');
+            
+            console.log('📋 All localStorage enrollments:', localEnrollments);
+            console.log('📋 Pending localStorage enrollments:', pendingLocalEnrollments);
+            
+            if (pendingLocalEnrollments.length > 0) {
+                showToast(`🔍 Found ${pendingLocalEnrollments.length} pending enrollments in localStorage!`, 'success');
+                
+                // Add them to the display if they're not already there
+                pendingLocalEnrollments.forEach(localEnrollment => {
+                    const existsInDisplay = allEnrollments.some(displayEnrollment => 
+                        displayEnrollment.user_email === localEnrollment.user_email && 
+                        displayEnrollment.course_id === localEnrollment.course_id
+                    );
+                    
+                    if (!existsInDisplay) {
+                        console.log('➕ Adding localStorage enrollment to display:', localEnrollment);
+                        allEnrollments.push(localEnrollment);
+                    }
+                });
+                
+                // Update display and counts
+                displayEnrollments(allEnrollments);
+                updatePendingUsersCount();
+                
+                showToast(`✅ Added ${pendingLocalEnrollments.length} localStorage enrollments to display`, 'success');
+            } else {
+                showToast('ℹ️ No pending enrollments found in localStorage', 'info');
+            }
+        }
+
+        // 🚨 NEW: Sync localStorage enrollments to Supabase
+        async function syncLocalStorageToSupabase() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🔄 Syncing localStorage enrollments to Supabase...');
+                const localEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                const pendingLocalEnrollments = localEnrollments.filter(e => e.status === 'pending');
+                
+                if (pendingLocalEnrollments.length === 0) {
+                    showToast('ℹ️ No pending enrollments to sync', 'info');
+                    return;
+                }
+
+                showToast(`🔄 Syncing ${pendingLocalEnrollments.length} enrollments to Supabase...`, 'success');
+                
+                let syncedCount = 0;
+                for (const enrollment of pendingLocalEnrollments) {
+                    try {
+                        // Remove the local_ prefix for Supabase
+                        const supabaseEnrollment = {
+                            user_id: enrollment.user_id,
+                            user_email: enrollment.user_email,
+                            course_id: enrollment.course_id,
+                            course_title: enrollment.course_title,
+                            status: enrollment.status,
+                            enrolled_at: enrollment.enrolled_at,
+                            progress: enrollment.progress || 0
+                        };
+
+                        const { error } = await supabase
+                            .from('enrollments')
+                            .insert([supabaseEnrollment]);
+
+                        if (error) {
+                            console.warn(`⚠️ Failed to sync enrollment ${enrollment.id}:`, error);
+                        } else {
+                            syncedCount++;
+                            console.log(`✅ Synced enrollment: ${enrollment.course_title}`);
+                        }
+                    } catch (syncError) {
+                        console.warn(`⚠️ Error syncing enrollment ${enrollment.id}:`, syncError);
+                    }
+                }
+
+                if (syncedCount > 0) {
+                    showToast(`✅ Successfully synced ${syncedCount} enrollments to Supabase!`, 'success');
+                    // Refresh the display
+                    setTimeout(() => {
+                        fetchEnrollments();
+                    }, 1000);
+                } else {
+                    showToast('⚠️ No enrollments were synced successfully', 'error');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error syncing to Supabase:', error);
+                showToast('❌ Failed to sync enrollments: ' + error.message, 'error');
+            }
+        }
+
+        // 🚨 NEW: Debug enrollment status function
+        async function debugEnrollmentStatus() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🔍 Debugging enrollment status...');
+                
+                // Test 1: Check if enrollments table exists
+                console.log('🔍 Test 1: Checking enrollments table...');
+                const { data: tableTest, error: tableError } = await supabase
+                    .from('enrollments')
+                    .select('count')
+                    .limit(1);
+                
+                if (tableError) {
+                    console.error('❌ Enrollments table access failed:', tableError);
+                    showToast('❌ Cannot access enrollments table: ' + tableError.message, 'error');
+                    return;
+                }
+                
+                console.log('✅ Enrollments table accessible');
+                
+                // Test 2: Get total count
+                console.log('🔍 Test 2: Getting total count...');
+                const { count, error: countError } = await supabase
+                    .from('enrollments')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (countError) {
+                    console.error('❌ Count query failed:', countError);
+                } else {
+                    console.log('✅ Total enrollments in database:', count);
+                }
+                
+                // Test 3: Get pending enrollments specifically
+                console.log('🔍 Test 3: Getting pending enrollments...');
+                const { data: pendingData, error: pendingError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('status', 'pending');
+                
+                if (pendingError) {
+                    console.error('❌ Pending enrollments query failed:', pendingError);
+                } else {
+                    console.log('✅ Pending enrollments found:', pendingData?.length || 0);
+                    pendingData?.forEach((enrollment, index) => {
+                        console.log(`📋 Pending ${index + 1}:`, enrollment);
+                    });
+                }
+                
+                // Test 4: Get all enrollments to see what's actually there
+                console.log('🔍 Test 4: Getting all enrollments...');
+                const { data: allData, error: allError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .order('enrolled_at', { ascending: false });
+                
+                if (allError) {
+                    console.error('❌ All enrollments query failed:', allError);
+                } else {
+                    console.log('✅ All enrollments found:', allData?.length || 0);
+                    console.log('📊 Status breakdown:', allData?.reduce((acc, e) => {
+                        acc[e.status] = (acc[e.status] || 0) + 1;
+                        return acc;
+                    }, {}));
+                    allData?.forEach((enrollment, index) => {
+                        console.log(`📋 Enrollment ${index + 1}:`, {
+                            id: enrollment.id,
+                            user_email: enrollment.user_email,
+                            course_title: enrollment.course_title,
+                            status: enrollment.status,
+                            enrolled_at: enrollment.enrolled_at
+                        });
+                    });
+                }
+                
+                // Test 5: Check for specific user enrollments
+                console.log('🔍 Test 5: Checking for ericmnisi007@gmail.com enrollments...');
+                const { data: userData, error: userError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('user_email', 'ericmnisi007@gmail.com')
+                    .order('enrolled_at', { ascending: false });
+                
+                if (userError) {
+                    console.error('❌ User enrollments query failed:', userError);
+                } else {
+                    console.log('✅ User enrollments found:', userData?.length || 0);
+                    userData?.forEach((enrollment, index) => {
+                        console.log(`📋 User Enrollment ${index + 1}:`, {
+                            id: enrollment.id,
+                            user_email: enrollment.user_email,
+                            course_title: enrollment.course_title,
+                            status: enrollment.status,
+                            enrolled_at: enrollment.enrolled_at
+                        });
+                    });
+                }
+                
+                showToast(`🔍 Debug complete: ${count || 0} total, ${pendingData?.length || 0} pending, ${userData?.length || 0} user enrollments`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Debug failed:', error);
+                showToast('❌ Debug failed: ' + error.message, 'error');
+            }
+        }
+
+        // 🚨 NEW: Force sync all approved enrollments function
+        async function forceSyncAllApprovedEnrollments() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🔄 Forcing sync of all approved enrollments...');
+                const { data: approvedEnrollments, error: fetchError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('status', 'approved');
+
+                if (fetchError) {
+                    console.error('❌ Failed to fetch approved enrollments:', fetchError);
+                    showToast('❌ Failed to fetch approved enrollments: ' + fetchError.message, 'error');
+                    return;
+                }
+
+                console.log('✅ Found approved enrollments to sync:', approvedEnrollments?.length || 0);
+
+                let syncedCount = 0;
+                for (const enrollment of approvedEnrollments || []) {
+                    try {
+                        // Update the status in Supabase
+                        const { error } = await supabase
+                            .from('enrollments')
+                            .update({ 
+                                status: 'approved', // Ensure it's 'approved'
+                                approved_at: new Date().toISOString() // Ensure approved_at is set
+                            })
+                            .eq('id', enrollment.id);
+
+                        if (error) {
+                            console.warn(`⚠️ Failed to force sync approved enrollment ${enrollment.id}:`, error);
+                        } else {
+                            syncedCount++;
+                            console.log(`✅ Forced sync approved enrollment: ${enrollment.course_title}`);
+                        }
+                    } catch (syncError) {
+                        console.warn(`⚠️ Error forcing sync approved enrollment ${enrollment.id}:`, syncError);
+                    }
+                }
+
+                if (syncedCount > 0) {
+                    showToast(`✅ Successfully forced sync of ${syncedCount} approved enrollments!`, 'success');
+                    // Refresh the display
+                    setTimeout(() => {
+                        fetchAllEnrollments(); // Use fetchAllEnrollments to update counts and display
+                    }, 1000);
+                } else {
+                    showToast('ℹ️ No approved enrollments found to force sync.', 'info');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error in forceSyncAllApprovedEnrollments:', error);
+                showToast('❌ Failed to force sync approved enrollments: ' + error.message, 'error');
+            }
+        }
+
+        // 🚨 NEW: Comprehensive test and fix for all enrollment issues
+        async function comprehensiveEnrollmentFix() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🚀 SENIOR DEVELOPER: Starting comprehensive enrollment fix...');
+                showToast('🔧 Starting comprehensive enrollment fix...', 'info');
+                
+                // Step 1: Get all enrollments from database
+                console.log('📋 Step 1: Fetching all enrollments from database...');
+                const { data: allEnrollments, error: fetchError } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .order('enrolled_at', { ascending: false });
+                
+                if (fetchError) throw fetchError;
+                
+                console.log(`✅ Found ${allEnrollments.length} total enrollments in database`);
+                
+                // Step 2: Analyze enrollment statuses
+                const statusBreakdown = allEnrollments.reduce((acc, enrollment) => {
+                    acc[enrollment.status] = (acc[enrollment.status] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                console.log('📊 Database status breakdown:', statusBreakdown);
+                
+                // Step 3: Get localStorage enrollments
+                console.log('📋 Step 3: Checking localStorage enrollments...');
+                const localEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                console.log(`✅ Found ${localEnrollments.length} enrollments in localStorage`);
+                
+                // Step 4: Sync database to localStorage
+                console.log('📋 Step 4: Syncing database to localStorage...');
+                let syncedCount = 0;
+                let updatedCount = 0;
+                
+                allEnrollments.forEach(dbEnrollment => {
+                    const localIndex = localEnrollments.findIndex(local => local.id === dbEnrollment.id);
+                    
+                    if (localIndex === -1) {
+                        // Add new enrollment from database
+                        localEnrollments.push({
+                            ...dbEnrollment,
+                            source: 'database-sync'
+                        });
+                        syncedCount++;
+                        console.log(`➕ Added new enrollment: ${dbEnrollment.course_title}`);
+                    } else {
+                        // Update existing enrollment if status differs
+                        const localEnrollment = localEnrollments[localIndex];
+                        if (localEnrollment.status !== dbEnrollment.status) {
+                            localEnrollments[localIndex] = {
+                                ...localEnrollment,
+                                status: dbEnrollment.status,
+                                approved_at: dbEnrollment.approved_at || localEnrollment.approved_at
+                            };
+                            updatedCount++;
+                            console.log(`🔄 Updated enrollment status: ${dbEnrollment.course_title} (${localEnrollment.status} → ${dbEnrollment.status})`);
+                        }
+                    }
+                });
+                
+                // Save updated localStorage
+                localStorage.setItem('enrollments', JSON.stringify(localEnrollments));
+                console.log(`💾 localStorage updated: ${syncedCount} added, ${updatedCount} updated`);
+                
+                // Step 5: Force refresh all course cards for approved enrollments
+                console.log('📋 Step 5: Forcing refresh of all approved course cards...');
+                const approvedEnrollments = allEnrollments.filter(e => e.status === 'approved');
+                
+                approvedEnrollments.forEach(enrollment => {
+                    // Dispatch multiple events to ensure all components update
+                    const events = [
+                        'force-course-card-refresh',
+                        'enrollment-status-changed',
+                        'course-access-granted',
+                        'admin-approval'
+                    ];
+                    
+                    events.forEach(eventType => {
+                        const event = new CustomEvent(eventType, {
+                            detail: {
+                                enrollmentId: enrollment.id,
+                                courseId: enrollment.course_id,
+                                courseTitle: enrollment.course_title,
+                                userEmail: enrollment.user_email,
+                                oldStatus: 'pending',
+                                newStatus: 'approved',
+                                timestamp: new Date().toISOString(),
+                                source: 'comprehensive-fix'
+                            }
+                        });
+                        
+                        console.log(`🔄 Dispatching ${eventType} for ${enrollment.course_title}`);
+                        window.dispatchEvent(event);
+                    });
+                });
+                
+                // Step 6: Show results
+                const totalProcessed = syncedCount + updatedCount;
+                const message = `✅ Comprehensive fix completed! ${syncedCount} added, ${updatedCount} updated, ${approvedEnrollments.length} approved enrollments refreshed`;
+                console.log(message);
+                showToast(message, 'success');
+                
+                // Step 7: Refresh admin panel display
+                setTimeout(() => {
+                    fetchAllEnrollments();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ Comprehensive enrollment fix failed:', error);
+                showToast('❌ Comprehensive fix failed: ' + error.message, 'error');
+            }
+        }
+
+        // 🚨 NEW: Test real-time event system
+        function testRealTimeEvents() {
+            console.log('🧪 Testing real-time event system...');
+            
+            // Test event 1: Admin approval
+            const testApprovalEvent = new CustomEvent('admin-approval', {
+                detail: {
+                    enrollmentId: 'test-123',
+                    courseId: 'test-course',
+                    courseTitle: 'Test Course',
+                    userEmail: 'test@example.com',
+                    status: 'approved',
+                    timestamp: new Date().toISOString(),
+                    source: 'test-system'
+                }
+            });
+            
+            console.log('🧪 Dispatching test admin-approval event...');
+            window.dispatchEvent(testApprovalEvent);
+            
+            // Test event 2: Force course card refresh
+            const testRefreshEvent = new CustomEvent('force-course-card-refresh', {
+                detail: {
+                    courseId: 'test-course',
+                    newStatus: 'approved',
+                    userEmail: 'test@example.com',
+                    timestamp: new Date().toISOString(),
+                    source: 'test-system'
+                }
+            });
+            
+            console.log('🧪 Dispatching test force-course-card-refresh event...');
+            window.dispatchEvent(testRefreshEvent);
+            
+            showToast('🧪 Test events dispatched. Check console for results.', 'info');
+        }
+
+        // 🚨 SENIOR DEVELOPER: Simple Direct Manual Sync
+        async function directManualSyncToUser() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🚀 SENIOR DEVELOPER: Starting simple direct manual sync...');
+                showToast('🔧 Starting direct manual sync...', 'info');
+                
+                // Get all approved enrollments
+                const { data: approvedEnrollments, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('status', 'approved');
+                
+                if (error) throw error;
+                
+                console.log(`📋 Found ${approvedEnrollments.length} approved enrollments`);
+                
+                // Update localStorage
+                const existingEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                let updatedCount = 0;
+                
+                approvedEnrollments.forEach(approvedEnrollment => {
+                    const existingIndex = existingEnrollments.findIndex(e => e.id === approvedEnrollment.id);
+                    
+                    if (existingIndex !== -1) {
+                        existingEnrollments[existingIndex].status = 'approved';
+                        existingEnrollments[existingIndex].approved_at = new Date().toISOString();
+                        updatedCount++;
+                    } else {
+                        existingEnrollments.push({
+                            ...approvedEnrollment,
+                            status: 'approved',
+                            approved_at: new Date().toISOString()
+                        });
+                        updatedCount++;
+                    }
+                });
+                
+                localStorage.setItem('enrollments', JSON.stringify(existingEnrollments));
+                console.log(`💾 localStorage updated: ${updatedCount} enrollments`);
+                
+                // Dispatch events for each approved enrollment
+                approvedEnrollments.forEach(enrollment => {
+                    const event = new CustomEvent('force-course-card-refresh', {
+                        detail: {
+                            courseId: enrollment.course_id,
+                            newStatus: 'approved',
+                            userEmail: enrollment.user_email,
+                            timestamp: new Date().toISOString(),
+                            source: 'simple-direct-sync'
+                        }
+                    });
+                    
+                    console.log(`🔄 Dispatching event for ${enrollment.course_title}`);
+                    window.dispatchEvent(event);
+                });
+                
+                showToast(`✅ Direct sync completed! ${updatedCount} enrollments, ${approvedEnrollments.length} events`, 'success');
+                
+                // Refresh admin panel
+                setTimeout(() => {
+                    fetchAllEnrollments();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ Direct sync failed:', error);
+                showToast('❌ Direct sync failed: ' + error.message, 'error');
+            }
+        }
+
+        // 🚨 SENIOR DEVELOPER: Simple Force Refresh User
+        async function forceRefreshSpecificUser(userEmail) {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log(`🚀 SENIOR DEVELOPER: Force refreshing user: ${userEmail}`);
+                
+                // Get user enrollments
+                const { data: userEnrollments, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('user_email', userEmail);
+                
+                if (error) throw error;
+                
+                console.log(`📋 Found ${userEnrollments.length} enrollments for user`);
+                
+                // Dispatch events for each course
+                userEnrollments.forEach(enrollment => {
+                    const event = new CustomEvent('force-course-card-refresh', {
+                        detail: {
+                            courseId: enrollment.course_id,
+                            newStatus: enrollment.status,
+                            userEmail: enrollment.user_email,
+                            timestamp: new Date().toISOString(),
+                            source: 'force-refresh-user'
+                        }
+                    });
+                    
+                    console.log(`🔄 Force refreshing course ${enrollment.course_title}`);
+                    window.dispatchEvent(event);
+                });
+                
+                showToast(`✅ Force refreshed ${userEnrollments.length} course cards for ${userEmail}`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Force refresh failed:', error);
+                showToast('❌ Force refresh failed: ' + error.message, 'error');
+            }
+        }
+
+        // 🚨 SENIOR DEVELOPER: Smart enrollment sync that preserves approved status
+        async function smartEnrollmentSync() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🚀 SENIOR DEVELOPER: Starting smart enrollment sync...');
+                showToast('🔧 Starting smart enrollment sync...', 'info');
+                
+                // Step 1: Get all enrollments from database
+                const { data: dbEnrollments, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .order('enrolled_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                console.log(`📋 Found ${dbEnrollments.length} enrollments in database`);
+                
+                // Step 2: Get localStorage enrollments
+                const localEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                console.log(`📋 Found ${localEnrollments.length} enrollments in localStorage`);
+                
+                // Step 3: Smart merge that preserves approved status
+                let syncedCount = 0;
+                let preservedCount = 0;
+                
+                dbEnrollments.forEach(dbEnrollment => {
+                    const localIndex = localEnrollments.findIndex(local => local.id === dbEnrollment.id);
+                    
+                    if (localIndex === -1) {
+                        // Add new enrollment from database
+                        localEnrollments.push({
+                            ...dbEnrollment,
+                            source: 'database-sync'
+                        });
+                        syncedCount++;
+                        console.log(`➕ Added new enrollment: ${dbEnrollment.course_title}`);
+                    } else {
+                        // 🚨 CRITICAL: Preserve approved status if it exists
+                        const localEnrollment = localEnrollments[localIndex];
+                        
+                        if (localEnrollment.status === 'approved' && dbEnrollment.status === 'pending') {
+                            // Keep the approved status from localStorage
+                            localEnrollments[localIndex] = {
+                                ...dbEnrollment,
+                                status: 'approved', // Preserve approved status
+                                approved_at: localEnrollment.approved_at || new Date().toISOString(),
+                                source: 'smart-sync-preserved'
+                            };
+                            preservedCount++;
+                            console.log(`🛡️ Preserved approved status for: ${dbEnrollment.course_title}`);
+                        } else if (dbEnrollment.status === 'approved' && localEnrollment.status === 'pending') {
+                            // Update to approved status from database
+                            localEnrollments[localIndex] = {
+                                ...localEnrollment,
+                                status: 'approved',
+                                approved_at: dbEnrollment.approved_at || new Date().toISOString(),
+                                source: 'smart-sync-updated'
+                            };
+                            syncedCount++;
+                            console.log(`🔄 Updated to approved status: ${dbEnrollment.course_title}`);
+                        } else {
+                            // Update other fields but preserve status
+                            localEnrollments[localIndex] = {
+                                ...localEnrollment,
+                                ...dbEnrollment,
+                                status: localEnrollment.status, // Preserve current status
+                                source: 'smart-sync-merged'
+                            };
+                            syncedCount++;
+                            console.log(`🔄 Merged enrollment data: ${dbEnrollment.course_title}`);
+                        }
+                    }
+                });
+                
+                // Save updated localStorage
+                localStorage.setItem('enrollments', JSON.stringify(localEnrollments));
+                console.log(`💾 Smart sync completed: ${syncedCount} synced, ${preservedCount} approved statuses preserved`);
+                
+                // Step 4: Force refresh all course cards to reflect current status
+                console.log('📋 Forcing refresh of all course cards...');
+                localEnrollments.forEach(enrollment => {
+                    const event = new CustomEvent('force-course-card-refresh', {
+                        detail: {
+                            courseId: enrollment.course_id,
+                            newStatus: enrollment.status,
+                            userEmail: enrollment.user_email,
+                            timestamp: new Date().toISOString(),
+                            source: 'smart-sync-refresh'
+                        }
+                    });
+                    
+                    console.log(`🔄 Dispatching refresh for ${enrollment.course_title} (${enrollment.status})`);
+                    window.dispatchEvent(event);
+                });
+                
+                // Step 5: Show results
+                const message = `✅ Smart sync completed! ${syncedCount} synced, ${preservedCount} approved statuses preserved`;
+                console.log(message);
+                showToast(message, 'success');
+                
+                // Step 6: Refresh admin panel display
+                setTimeout(() => {
+                    fetchAllEnrollments();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ Smart enrollment sync failed:', error);
+                showToast('❌ Smart sync failed: ' + error.message, 'error');
+            }
+        }
+
+        // 🚨 SENIOR DEVELOPER: One-click approval for all pending enrollments
+        async function approveAllPendingEnrollments() {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log('🚀 SENIOR DEVELOPER: Starting bulk approval of all pending enrollments...');
+                showToast('🔧 Starting bulk approval...', 'info');
+                
+                // Get all pending enrollments
+                const { data: pendingEnrollments, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('status', 'pending');
+                
+                if (error) throw error;
+                
+                if (pendingEnrollments.length === 0) {
+                    showToast('ℹ️ No pending enrollments found!', 'info');
+                    return;
+                }
+                
+                console.log(`📋 Found ${pendingEnrollments.length} pending enrollments to approve`);
+                
+                // Approve all pending enrollments in parallel
+                const approvalPromises = pendingEnrollments.map(async (enrollment) => {
+                    try {
+                        const { error: updateError } = await supabase
+                            .from('enrollments')
+                            .update({ 
+                                status: 'approved',
+                                approved_at: new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', enrollment.id);
+                        
+                        if (updateError) {
+                            console.warn(`⚠️ Failed to approve enrollment ${enrollment.id}:`, updateError);
+                            return { success: false, enrollment, error: updateError };
+                        } else {
+                            console.log(`✅ Approved enrollment: ${enrollment.course_title}`);
+                            return { success: true, enrollment };
+                        }
+                    } catch (approvalError) {
+                        console.warn(`⚠️ Error approving enrollment ${enrollment.id}:`, approvalError);
+                        return { success: false, enrollment, error: approvalError };
+                    }
+                });
+                
+                const results = await Promise.all(approvalPromises);
+                const successful = results.filter(r => r.success);
+                const failed = results.filter(r => !r.success);
+                
+                console.log(`📊 Bulk approval results: ${successful.length} successful, ${failed.length} failed`);
+                
+                // Update localStorage for all successful approvals
+                if (successful.length > 0) {
+                    const existingEnrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+                    
+                    successful.forEach(result => {
+                        const localIndex = existingEnrollments.findIndex(e => e.id === result.enrollment.id);
+                        if (localIndex !== -1) {
+                            existingEnrollments[localIndex] = {
+                                ...existingEnrollments[localIndex],
+                                status: 'approved',
+                                approved_at: new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            };
+                        } else {
+                            existingEnrollments.push({
+                                ...result.enrollment,
+                                status: 'approved',
+                                approved_at: new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            });
+                        }
+                    });
+                    
+                    localStorage.setItem('enrollments', JSON.stringify(existingEnrollments));
+                    console.log(`💾 Updated localStorage for ${successful.length} approved enrollments`);
+                    
+                    // Dispatch events for all successful approvals
+                    successful.forEach(result => {
+                        const event = new CustomEvent('force-course-card-refresh', {
+                            detail: {
+                                courseId: result.enrollment.course_id,
+                                newStatus: 'approved',
+                                userEmail: result.enrollment.user_email,
+                                timestamp: new Date().toISOString(),
+                                source: 'bulk-approval'
+                            }
+                        });
+                        
+                        console.log(`🔄 Dispatching approval event for ${result.enrollment.course_title}`);
+                        window.dispatchEvent(event);
+                    });
+                }
+                
+                // Show results
+                const message = `✅ Bulk approval completed! ${successful.length} approved, ${failed.length} failed`;
+                console.log(message);
+                showToast(message, 'success');
+                
+                // Refresh admin panel
+                setTimeout(() => {
+                    fetchAllEnrollments();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ Bulk approval failed:', error);
+                showToast('❌ Bulk approval failed: ' + error.message, 'error');
+            }
+        }
+
+        // 🚨 NEW: Remove All Enrollments for Specific User
+        async function removeAllEnrollmentsForUser(userEmail) {
+            if (!supabase) {
+                showToast('❌ Please connect to database first', 'error');
+                return;
+            }
+
+            try {
+                console.log(`🗑️ Removing all enrollments for user: ${userEmail}`);
+                
+                // Get all enrollments for the user
+                const { data: userEnrollments, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('user_email', userEmail);
+                
+                if (error) throw error;
+                
+                console.log(`📋 Found ${userEnrollments.length} enrollments for user`);
+                
+                // Delete each enrollment
+                const deletePromises = userEnrollments.map(async (enrollment) => {
+                    try {
+                        const { error: deleteError } = await supabase
+                            .from('enrollments')
+                            .delete()
+                            .eq('id', enrollment.id);
+                        
+                        if (deleteError) {
+                            console.warn(`⚠️ Failed to delete enrollment ${enrollment.id}:`, deleteError);
+                            return { success: false, enrollment, error: deleteError };
+                        } else {
+                            console.log(`✅ Enrollment ${enrollment.id} deleted successfully`);
+                            return { success: true, enrollment };
+                        }
+                    } catch (deleteError) {
+                        console.warn(`⚠️ Error deleting enrollment ${enrollment.id}:`, deleteError);
+                        return { success: false, enrollment, error: deleteError };
+                    }
+                });
+                
+                const results = await Promise.all(deletePromises);
+                const successful = results.filter(r => r.success);
+                const failed = results.filter(r => !r.success);
+                
+                console.log(`📊 Removal results: ${successful.length} successful, ${failed.length} failed`);
+                
+                // Update localStorage
+                localStorage.setItem('enrollments', JSON.stringify(allEnrollments));
+                
+                // Refresh the display
+                setTimeout(() => {
+                    fetchAllEnrollments();
+                }, 1000);
+                
+                showToast(`✅ Successfully removed ${successful.length} enrollments for ${userEmail}`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Error removing enrollments:', error);
+                showToast('❌ Failed to remove enrollments: ' + error.message, 'error');
+            }
+        }
+
+        // 🚀 NEW: User Profile Modal Functions
+        async function showUserProfile(userId) {
+            console.log('👤 Opening user profile for ID:', userId);
+            
+            // Show modal and loading state
+            const modal = document.getElementById('userProfileModal');
+            const loading = document.getElementById('userProfileLoading');
+            const content = document.getElementById('userProfileContent');
+            
+            modal.classList.remove('hidden');
+            loading.classList.remove('hidden');
+            content.classList.add('hidden');
+
+            try {
+                // Fetch user details
+                const { data: user, error: userError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+
+                if (userError) {
+                    console.error('❌ Error fetching user:', userError);
+                    showToast('❌ Failed to fetch user details: ' + userError.message, 'error');
+                    closeUserProfile();
+                    return;
+                }
+
+                // Fetch user enrollments - try multiple approaches
+                console.log('🔍 Fetching user enrollments for user:', user.email, 'ID:', userId);
+                let enrollments = [];
+                
+                // Method 1: Direct user_id lookup
+                const { data: enrollmentsByUserId, error: enrollmentsError1 } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('enrolled_at', { ascending: false });
+                
+                console.log('📊 Enrollments by user_id:', enrollmentsByUserId);
+                
+                if (enrollmentsByUserId && enrollmentsByUserId.length > 0) {
+                    enrollments = enrollmentsByUserId;
+                } else {
+                    // Method 2: Try by email
+                    console.log('🔍 Trying to fetch enrollments by email:', user.email);
+                    const { data: enrollmentsByEmail, error: enrollmentsError2 } = await supabase
+                        .from('enrollments')
+                        .select('*')
+                        .eq('user_email', user.email)
+                        .order('enrolled_at', { ascending: false });
+                    
+                    console.log('📊 Enrollments by email:', enrollmentsByEmail);
+                    
+                    if (enrollmentsByEmail && enrollmentsByEmail.length > 0) {
+                        enrollments = enrollmentsByEmail;
+                    } else {
+                        // Method 3: Check all enrollments and filter
+                        console.log('🔍 Fetching all enrollments to search...');
+                        const { data: allEnrollments, error: allEnrollmentsError } = await supabase
+                            .from('enrollments')
+                            .select('*')
+                            .order('enrolled_at', { ascending: false });
+                        
+                        console.log('📊 All enrollments:', allEnrollments);
+                        
+                        if (allEnrollments) {
+                            enrollments = allEnrollments.filter(e => 
+                                e.user_id === userId || e.user_email === user.email
+                            );
+                            console.log('📊 Filtered enrollments:', enrollments);
+                        }
+                    }
+                }
+                
+                console.log('✅ Final enrollments found:', enrollments.length, enrollments);
+
+                // Fetch user progress (if available)
+                // Fetch user progress from multiple sources
+                let progress = [];
+                
+                // 1. Try to fetch from user_progress table (primary source)
+                try {
+                    const { data: progressData, error: progressError } = await supabase
+                        .from('user_progress')
+                        .select('*')
+                        .eq('user_id', userId);
+                    
+                    if (progressError) {
+                        if (progressError.code === '42P01') {
+                            console.warn('⚠️ user_progress table does not exist. Please run the create-user-progress-table.sql script in Supabase.');
+                        } else {
+                            console.warn('⚠️ user_progress table error:', progressError);
+                        }
+                    } else if (progressData && progressData.length > 0) {
+                        console.log('✅ Found user_progress data:', progressData);
+                        progress = progressData.map(p => ({
+                            user_id: p.user_id,
+                            course_id: p.course_id,
+                            progress: p.progress_percentage || 0,
+                            completed: p.progress_percentage >= 100,
+                            last_updated: p.updated_at || p.last_visited,
+                            completed_lessons: p.completed_lessons || [],
+                            quiz_scores: p.quiz_scores || {}
+                        }));
+                    }
+                } catch (e) {
+                    console.warn('⚠️ user_progress table not available:', e);
+                }
+                
+                // 2. If no progress from user_progress table, use progress from enrollments
+                if (progress.length === 0 && enrollments && enrollments.length > 0) {
+                    console.log('📊 Using enrollment progress data:', enrollments);
+                    progress = enrollments.map(enrollment => ({
+                        user_id: userId,
+                        course_id: enrollment.course_id,
+                        progress: enrollment.progress || 0,
+                        completed: enrollment.progress >= 100,
+                        last_updated: enrollment.updated_at || enrollment.enrolled_at
+                    }));
+                }
+                
+                // 3. Also check localStorage for progress data
+                try {
+                    // Check multiple localStorage keys
+                    const localStorageKeys = [
+                        `user_progress_${userId}`,
+                        `course_progress_${userId}`,
+                        'enrollments',
+                        'user_progress',
+                        'course_progress'
+                    ];
+                    
+                    for (const key of localStorageKeys) {
+                        const localData = localStorage.getItem(key);
+                        if (localData) {
+                            console.log(`📊 Found localStorage data in ${key}:`, localData);
+                            try {
+                                const parsedData = JSON.parse(localData);
+                                if (Array.isArray(parsedData)) {
+                                    // Filter for this user's data
+                                    const userData = parsedData.filter(item => 
+                                        item.user_id === userId || 
+                                        item.userEmail === user.email ||
+                                        item.email === user.email
+                                    );
+                                    if (userData.length > 0) {
+                                        console.log(`📊 User data from ${key}:`, userData);
+                                        userData.forEach(localP => {
+                                            const existing = progress.find(p => p.course_id === localP.course_id);
+                                            if (existing) {
+                                                existing.progress = Math.max(existing.progress, localP.progress || 0);
+                                            } else {
+                                                progress.push(localP);
+                                            }
+                                        });
+                                    }
+                                }
+                            } catch (parseError) {
+                                console.warn(`⚠️ Could not parse localStorage data from ${key}:`, parseError);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Could not check localStorage:', e);
+                }
+
+                console.log('📊 Final progress data for user profile:', progress);
+
+                // Populate user profile
+                populateUserProfile(user, enrollments || [], progress || []);
+
+                // Hide loading, show content
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('❌ Error in showUserProfile:', error);
+                showToast('❌ Failed to load user profile: ' + error.message, 'error');
+                closeUserProfile();
+            }
+        }
+
+        async function populateUserProfile(user, enrollments, progress) {
+            try {
+                console.log('📝 Populating user profile:', user.email, 'Enrollments:', enrollments.length, 'Progress:', progress.length);
+                console.log('📊 Full user data:', user);
+                console.log('📊 Available user fields:', Object.keys(user));
+
+            // User Header
+            document.getElementById('userAvatar').textContent = getInitials(user);
+            document.getElementById('userFullName').textContent = `${user.first_name} ${user.last_name}`;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userRole').textContent = user.role || 'student';
+            
+            // Status with proper styling
+            const statusElement = document.getElementById('userStatus');
+            statusElement.textContent = user.approval_status || 'pending';
+            statusElement.className = `px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(user.approval_status)}`;
+
+            // Personal Information
+            document.getElementById('userFirstName').textContent = user.first_name || 'N/A';
+            document.getElementById('userLastName').textContent = user.last_name || 'N/A';
+            
+            // FIXED: Get contact number from user data with debugging
+            console.log('📞 Contact number fields in user data:', {
+                contact_number: user.contact_number,
+                phone: user.phone,
+                raw_user_meta_data: user.raw_user_meta_data
+            });
+            
+            const contactNumber = user.contact_number || user.phone || 'Not Available';
+            document.getElementById('userPhone').textContent = contactNumber;
+            
+            // If still not available, try to get from auth metadata
+            if (contactNumber === 'Not Available') {
+                try {
+                    const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(user.id);
+                    if (authUser && authUser.user && authUser.user.user_metadata) {
+                        const metadataContact = authUser.user.user_metadata.contact_number || authUser.user.user_metadata.phone;
+                        if (metadataContact) {
+                            document.getElementById('userPhone').textContent = metadataContact;
+                            console.log('✅ Found contact number in auth metadata:', metadataContact);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Could not fetch auth metadata for contact number');
+                }
+            }
+            document.getElementById('userDob').textContent = 'Not Available'; // Field doesn't exist in database
+            document.getElementById('userGender').textContent = 'Not Available'; // Field doesn't exist in database
+
+            // Account Information
+            document.getElementById('userId').textContent = user.id;
+            document.getElementById('userRegistrationDate').textContent = new Date(user.created_at).toLocaleDateString();
+            
+            // Fix last login - check auth.users table for actual login data
+            let lastLogin = 'Never';
+            try {
+                // Try to get actual login data from auth.users
+                const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(user.id);
+                if (authUser && authUser.user && authUser.user.last_sign_in_at) {
+                    lastLogin = new Date(authUser.user.last_sign_in_at).toLocaleDateString();
+                    console.log('✅ Found actual last login:', lastLogin);
+                } else if (user.updated_at && user.updated_at !== user.created_at) {
+                    lastLogin = new Date(user.updated_at).toLocaleDateString();
+                    console.log('📊 Using updated_at as proxy:', lastLogin);
+                } else {
+                    lastLogin = 'No activity recorded';
+                }
+            } catch (e) {
+                console.warn('⚠️ Could not fetch auth data, using fallback');
+                if (user.updated_at && user.updated_at !== user.created_at) {
+                    lastLogin = new Date(user.updated_at).toLocaleDateString();
+                } else {
+                    lastLogin = 'No activity recorded';
+                }
+            }
+            document.getElementById('userLastLogin').textContent = lastLogin;
+            
+            document.getElementById('userEmailVerified').textContent = 'Not Available'; // Field doesn't exist in database
+
+            // Enrollment Status
+            populateEnrollmentStatus(enrollments);
+
+            // Course Progress
+            populateCourseProgress(progress, enrollments);
+            
+            } catch (error) {
+                console.error('❌ Error in populateUserProfile:', error);
+                showToast('❌ Error loading user profile: ' + error.message, 'error');
+            }
+        }
+
+        function populateEnrollmentStatus(enrollments) {
+            const enrollmentStatusDiv = document.getElementById('enrollmentStatus');
+            
+            if (enrollments.length === 0) {
+                enrollmentStatusDiv.innerHTML = `
+                    <div class="text-center py-4">
+                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <p class="text-gray-600">No enrollments found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            enrollmentStatusDiv.innerHTML = enrollments.map(enrollment => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <h5 class="font-semibold text-gray-900">${enrollment.course_name || 'Unknown Course'}</h5>
+                        <span class="px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(enrollment.status)}">
+                            ${enrollment.status || 'pending'}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600">Enrolled:</span>
+                            <span class="font-medium text-gray-900 ml-2">${new Date(enrollment.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Course ID:</span>
+                            <span class="font-medium text-gray-900 ml-2">${enrollment.course_id || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Payment Status:</span>
+                            <span class="font-medium text-gray-900 ml-2">${enrollment.payment_status || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Enrollment ID:</span>
+                            <span class="font-medium text-gray-900 ml-2 text-xs">${enrollment.id}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateCourseProgress(progress, enrollments) {
+            try {
+                const courseProgressDiv = document.getElementById('courseProgress');
+                
+                console.log('📊 Course Progress Debug:', {
+                    progressData: progress,
+                    enrollments: enrollments,
+                    progressLength: progress.length,
+                    enrollmentsLength: enrollments.length
+                });
+            
+            // If no detailed progress but we have enrollments with progress, show enrollment progress
+            if (progress.length === 0 && enrollments.length > 0) {
+                const enrollmentProgressCards = enrollments.map(enrollment => {
+                    // Try to get progress from multiple sources
+                    let progressPercentage = Math.round(enrollment.progress || 0);
+                    
+                    // Check localStorage for progress data
+                    try {
+                        const localStorageProgress = localStorage.getItem(`user_progress_${enrollment.user_id}_${enrollment.course_id}`);
+                        if (localStorageProgress) {
+                            const parsedProgress = JSON.parse(localStorageProgress);
+                            progressPercentage = Math.round(parsedProgress.progress_percentage || parsedProgress.progress || 0);
+                            console.log('📊 Found localStorage progress:', progressPercentage);
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ Error reading localStorage progress');
+                    }
+                    
+                    const completedLessons = enrollment.completed_lessons ? enrollment.completed_lessons.length : 0;
+                    const totalLessons = enrollment.total_lessons || 1;
+                    
+                    return `
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <h5 class="font-semibold text-gray-900">${enrollment.course_name || enrollment.course_title || 'Unknown Course'}</h5>
+                                <span class="text-sm font-medium text-gray-600">${progressPercentage}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: ${progressPercentage}%"></div>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <span>Progress: ${progressPercentage}%</span>
+                                <span class="ml-4">${completedLessons}/${totalLessons} lessons</span>
+                            </div>
+                            <div class="text-sm text-gray-500 mt-1">
+                                <span>Enrolled: ${new Date(enrollment.enrolled_at).toLocaleDateString()}</span>
+                                ${enrollment.last_accessed ? `<span class="ml-4">Last accessed: ${new Date(enrollment.last_accessed).toLocaleDateString()}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                courseProgressDiv.innerHTML = enrollmentProgressCards;
+                return;
+            }
+            
+            if (progress.length === 0 && enrollments.length === 0) {
+                courseProgressDiv.innerHTML = `
+                    <div class="text-center py-4">
+                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <p class="text-gray-600">No progress data available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group progress by course
+            const progressByCourse = {};
+            progress.forEach(p => {
+                if (!progressByCourse[p.course_id]) {
+                    progressByCourse[p.course_id] = [];
+                }
+                progressByCourse[p.course_id].push(p);
+            });
+
+            // Create progress cards
+            const progressCards = Object.keys(progressByCourse).map(courseId => {
+                const courseProgress = progressByCourse[courseId];
+                const enrollment = enrollments.find(e => e.course_id === courseId);
+                
+                // Use enrollment progress if available, otherwise calculate from lessons
+                let progressPercentage = 0;
+                let totalLessons = 0;
+                let completedLessons = 0;
+                
+                if (enrollment && enrollment.progress !== undefined) {
+                    progressPercentage = Math.round(enrollment.progress);
+                    totalLessons = courseProgress.length;
+                    completedLessons = courseProgress.filter(p => p.completed).length;
+                } else {
+                    totalLessons = courseProgress.length;
+                    completedLessons = courseProgress.filter(p => p.completed).length;
+                    progressPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+                }
+
+                return `
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h5 class="font-semibold text-gray-900">${enrollment?.course_name || `Course ${courseId}`}</h5>
+                            <span class="text-sm font-medium text-gray-600">${completedLessons}/${totalLessons} lessons</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
+                            <div class="bg-green-600 h-2 rounded-full transition-all duration-300" style="width: ${progressPercentage}%"></div>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-600">
+                            <span>Progress: ${progressPercentage}%</span>
+                            <span>Last updated: ${courseProgress[0]?.updated_at ? new Date(courseProgress[0].updated_at).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            courseProgressDiv.innerHTML = progressCards || `
+                <div class="text-center py-4">
+                    <p class="text-gray-600">No progress data available for enrolled courses</p>
+                </div>
+            `;
+            
+            } catch (error) {
+                console.error('❌ Error in populateCourseProgress:', error);
+                const courseProgressDiv = document.getElementById('courseProgress');
+                if (courseProgressDiv) {
+                    courseProgressDiv.innerHTML = `
+                        <div class="text-center py-4">
+                            <p class="text-red-600">Error loading progress data</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function closeUserProfile() {
+            const modal = document.getElementById('userProfileModal');
+            modal.classList.add('hidden');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('userProfileModal');
+            if (event.target === modal) {
+                closeUserProfile();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Supabase Connection</title>
+</head>
+<body>
+    <h1>Debug Supabase Connection</h1>
+    <div id="result"></div>
+
+    <script>
+        function debugSupabase() {
+            const resultDiv = document.getElementById('result');
+            
+            // Check if there's a working Supabase client in the global scope
+            if (window.supabase) {
+                resultDiv.innerHTML = '<p>✅ Supabase client found in global scope</p>';
+            } else {
+                resultDiv.innerHTML = '<p>❌ No Supabase client found in global scope</p>';
+            }
+            
+            // Check for any Supabase-related environment variables or config
+            const envVars = {
+                'VITE_SUPABASE_URL': import.meta?.env?.VITE_SUPABASE_URL || 'Not found',
+                'SUPABASE_URL': import.meta?.env?.SUPABASE_URL || 'Not found'
+            };
+            
+            resultDiv.innerHTML += `
+                <h3>Environment Variables:</h3>
+                <pre>${JSON.stringify(envVars, null, 2)}</pre>
+            `;
+            
+            // Check localStorage for any Supabase config
+            const allKeys = Object.keys(localStorage);
+            const supabaseKeys = allKeys.filter(key => key.includes('supabase'));
+            
+            if (supabaseKeys.length > 0) {
+                resultDiv.innerHTML += `
+                    <h3>Supabase localStorage keys:</h3>
+                    <ul>
+                        ${supabaseKeys.map(key => `<li>${key}: ${localStorage.getItem(key)}</li>`).join('')}
+                    </ul>
+                `;
+            }
+            
+            // Try to extract URL from the auth session
+            const authSession = localStorage.getItem('supabase-auth-session');
+            if (authSession) {
+                try {
+                    const parsed = JSON.parse(authSession);
+                    if (parsed.access_token) {
+                        // Decode the JWT to get the issuer
+                        const payload = JSON.parse(atob(parsed.access_token.split('.')[1]));
+                        resultDiv.innerHTML += `
+                            <h3>JWT Token Info:</h3>
+                            <p><strong>Issuer:</strong> ${payload.iss}</p>
+                            <p><strong>Audience:</strong> ${payload.aud}</p>
+                            <p><strong>Subject:</strong> ${payload.sub}</p>
+                        `;
+                    }
+                } catch (e) {
+                    resultDiv.innerHTML += `<p>Could not parse auth session: ${e.message}</p>`;
+                }
+            }
+            
+            // Test network connectivity
+            resultDiv.innerHTML += `
+                <h3>Network Tests:</h3>
+                <button onclick="testNetwork()">Test Network Connectivity</button>
+                <div id="network-results"></div>
+            `;
+        }
+        
+        async function testNetwork() {
+            const networkDiv = document.getElementById('network-results');
+            networkDiv.innerHTML = '<p>Testing network connectivity...</p>';
+            
+            const urls = [
+                'https://jpawfcmixtchdvtrykhlst.supabase.co',
+                'https://jpawfcmixtchdvtrykhlst.supabase.co/rest/v1/',
+                'https://supabase.com',
+                'https://google.com'
+            ];
+            
+            for (const url of urls) {
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    networkDiv.innerHTML += `<p style="color: green;">✅ ${url} - Status: ${response.status}</p>`;
+                } catch (error) {
+                    networkDiv.innerHTML += `<p style="color: red;">❌ ${url} - Error: ${error.message}</p>`;
+                }
+            }
+        }
+
+        debugSupabase();
+    </script>
+</body>
+</html>

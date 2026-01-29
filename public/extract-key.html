@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract Supabase Key</title>
+</head>
+<body>
+    <h1>Extract Supabase Anon Key</h1>
+    <div id="result"></div>
+
+    <script>
+        function extractKey() {
+            const resultDiv = document.getElementById('result');
+            
+            // Try to get the key from localStorage
+            const authToken = localStorage.getItem('sb-beta-skill-330b6-auth-token');
+            if (authToken) {
+                try {
+                    const parsed = JSON.parse(authToken);
+                    resultDiv.innerHTML = `
+                        <h3>Found auth token in localStorage:</h3>
+                        <pre>${JSON.stringify(parsed, null, 2)}</pre>
+                    `;
+                } catch (e) {
+                    resultDiv.innerHTML = `<p>Found auth token but couldn't parse: ${authToken}</p>`;
+                }
+            } else {
+                resultDiv.innerHTML = '<p>No auth token found in localStorage</p>';
+            }
+            
+            // Check for any Supabase-related keys
+            const allKeys = Object.keys(localStorage);
+            const supabaseKeys = allKeys.filter(key => key.includes('supabase') || key.includes('beta-skill'));
+            
+            if (supabaseKeys.length > 0) {
+                resultDiv.innerHTML += `
+                    <h3>Supabase-related localStorage keys:</h3>
+                    <ul>
+                        ${supabaseKeys.map(key => `<li>${key}: ${localStorage.getItem(key)}</li>`).join('')}
+                    </ul>
+                `;
+            }
+            
+            // Check sessionStorage too
+            const sessionKeys = Object.keys(sessionStorage);
+            const sessionSupabaseKeys = sessionKeys.filter(key => key.includes('supabase') || key.includes('beta-skill'));
+            
+            if (sessionSupabaseKeys.length > 0) {
+                resultDiv.innerHTML += `
+                    <h3>Supabase-related sessionStorage keys:</h3>
+                    <ul>
+                        ${sessionSupabaseKeys.map(key => `<li>${key}: ${sessionStorage.getItem(key)}</li>`).join('')}
+                    </ul>
+                `;
+            }
+        }
+
+        extractKey();
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Test - Beta Skill</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .success { background: rgba(34, 197, 94, 0.3); padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .error { background: rgba(239, 68, 68, 0.3); padding: 20px; border-radius: 10px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Deployment Test</h1>
+        <p>If you can see this page, static files are being deployed correctly.</p>
+        
+        <div class="success">
+            <h3>✅ SUCCESS!</h3>
+            <p>Static file deployment is working!</p>
+            <p><strong>Timestamp:</strong> 2025-01-08 15:45 UTC</p>
+        </div>
+
+        <div class="error">
+            <h3>🔧 Next Steps</h3>
+            <p>If you see this, the issue is with React build, not static files.</p>
+            <p>Check your Netlify build logs for React-specific errors.</p>
+        </div>
+
+        <h3>📋 Test Links:</h3>
+        <p><a href="/admin-standalone.html" style="color: #ffd700;">Admin Dashboard Standalone</a></p>
+        <p><a href="/admin-test.html" style="color: #ffd700;">Admin Test Page</a></p>
+        <p><a href="/" style="color: #ffd700;">Home Page</a></p>
+    </div>
+</body>
+</html>

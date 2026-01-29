@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Test v2</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test v2</h1>
+    <div id="result"></div>
+
+    <script>
+        // Try different URL formats
+        const urls = [
+            'https://beta-skill-330b6.supabase.co',
+            'https://beta-skill-330b6.supabase.co/rest/v1/',
+            'https://beta-skill-330b6.supabase.co/auth/v1/'
+        ];
+
+        const testKeys = [
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJldGEtc2tpbGwtMzMwYjYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNzE5NzE0NCwiZXhwIjoyMDUyNzczMTQ0fQ.Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8',
+            // Add a placeholder for the correct key
+            'PLACEHOLDER_FOR_CORRECT_KEY'
+        ];
+
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Testing connections...</p>';
+
+            for (let i = 0; i < urls.length; i++) {
+                const url = urls[i];
+                for (let j = 0; j < testKeys.length; j++) {
+                    const key = testKeys[j];
+                    
+                    if (key === 'PLACEHOLDER_FOR_CORRECT_KEY') continue;
+                    
+                    try {
+                        console.log(`Testing URL: ${url} with key: ${key.substring(0, 20)}...`);
+                        
+                        const supabase = window.supabase.createClient(url, key);
+                        
+                        const { data, error } = await supabase
+                            .from('profiles')
+                            .select('count')
+                            .limit(1);
+                        
+                        if (error) {
+                            resultDiv.innerHTML += `<p style="color: orange;">⚠️ URL: ${url}<br>Error: ${error.message}</p>`;
+                        } else {
+                            resultDiv.innerHTML += `<p style="color: green;">✅ SUCCESS! URL: ${url}<br>Data: ${JSON.stringify(data)}</p>`;
+                            return; // Found working combination
+                        }
+                        
+                    } catch (err) {
+                        resultDiv.innerHTML += `<p style="color: red;">❌ URL: ${url}<br>Exception: ${err.message}</p>`;
+                    }
+                }
+            }
+            
+            resultDiv.innerHTML += '<p><strong>All tests failed. Please check your Supabase credentials.</strong></p>';
+        }
+
+        // Test on page load
+        testConnection();
+    </script>
+</body>
+</html>

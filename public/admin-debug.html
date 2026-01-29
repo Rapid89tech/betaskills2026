@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Debug - Beta Skill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="gradient-bg text-white p-6">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl font-bold mb-2">Admin Debug</h1>
+            <p class="text-xl opacity-90">Testing Supabase connection and data loading</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto p-6">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4">Connection Test</h2>
+            <button onclick="testConnection()" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700">
+                Test Supabase Connection
+            </button>
+            <button onclick="testUsers()" class="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 ml-4">
+                Test Users Table
+            </button>
+            <button onclick="testEnrollments()" class="bg-purple-600 text-white px-6 py-3 rounded-md hover:bg-purple-700 ml-4">
+                Test Enrollments Table
+            </button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">Debug Results</h2>
+            <div id="results" class="space-y-2">
+                <div class="info">Click buttons above to test connection and data loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testConnection() {
+            try {
+                log('🔄 Testing Supabase connection...', 'info');
+                
+                // Check if Supabase library is loaded
+                if (!window.supabase) {
+                    log('❌ Supabase library not loaded!', 'error');
+                    return;
+                }
+                
+                log('✅ Supabase library loaded', 'success');
+                
+                const supabaseUrl = 'https://jpafcmixtchvtrkhltst.supabase.co';
+                const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwYWZjbWl4dGNodnRya2hsdHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1MzIzODYsImV4cCI6MjA2OTEwODM4Nn0.dR0-DW8_ekftD9DZjGutGuyh4kiPG338NQ367tC8Pcw';
+                
+                log('🔗 Creating Supabase client...', 'info');
+                const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+                
+                log('✅ Supabase client created', 'success');
+                
+                // Test basic connection
+                log('🔄 Testing basic connection...', 'info');
+                const { data, error } = await supabase
+                    .from('enrollments')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    log('❌ Connection test failed: ' + error.message, 'error');
+                    return;
+                }
+                
+                log('✅ Connection test passed!', 'success');
+                log('📊 Database is accessible', 'success');
+                
+            } catch (error) {
+                log('❌ Test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testUsers() {
+            try {
+                log('🔄 Testing users table...', 'info');
+                
+                const supabaseUrl = 'https://jpafcmixtchvtrkhltst.supabase.co';
+                const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwYWZjbWl4dGNodnRya2hsdHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1MzIzODYsImV4cCI6MjA2OTEwODM4Nn0.dR0-DW8_ekftD9DZjGutGuyh4kiPG338NQ367tC8Pcw';
+                const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+                
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .limit(5);
+                
+                if (error) {
+                    log('❌ Users test failed: ' + error.message, 'error');
+                    return;
+                }
+                
+                log(`✅ Users test passed! Found ${data.length} users`, 'success');
+                data.forEach((user, index) => {
+                    log(`👤 User ${index + 1}: ${user.first_name} ${user.last_name} (${user.email})`, 'info');
+                });
+                
+            } catch (error) {
+                log('❌ Users test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testEnrollments() {
+            try {
+                log('🔄 Testing enrollments table...', 'info');
+                
+                const supabaseUrl = 'https://jpafcmixtchvtrkhltst.supabase.co';
+                const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwYWZjbWl4dGNodnRya2hsdHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1MzIzODYsImV4cCI6MjA2OTEwODM4Nn0.dR0-DW8_ekftD9DZjGutGuyh4kiPG338NQ367tC8Pcw';
+                const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+                
+                const { data, error } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .limit(5);
+                
+                if (error) {
+                    log('❌ Enrollments test failed: ' + error.message, 'error');
+                    return;
+                }
+                
+                log(`✅ Enrollments test passed! Found ${data.length} enrollments`, 'success');
+                data.forEach((enrollment, index) => {
+                    log(`📚 Enrollment ${index + 1}: ${enrollment.user_email} - ${enrollment.course_title} (${enrollment.status})`, 'info');
+                });
+                
+            } catch (error) {
+                log('❌ Enrollments test failed: ' + error.message, 'error');
+            }
+        }
+
+        // Auto-run connection test on page load
+        window.addEventListener('load', () => {
+            log('🚀 Admin Debug page loaded', 'success');
+            log('Click "Test Supabase Connection" to start debugging', 'info');
+        });
+    </script>
+</body>
+</html>

@@ -1,95 +1,115 @@
-export const lesson3_4 = {
-  id: 11,
+import type { Lesson } from '@/types/course';
+
+export const lesson3_4: Lesson = {
+  id: 4,
   title: '👥 Managing Human-AI Teams',
-  duration: '130:00',
-  type: 'video' as const,
+  duration: '75 min',
+  type: 'video',
   content: {
-    videoUrl: 'https://www.youtube.com/watch?v=2moCutHfLcs',
+    videoUrl: 'https://youtu.be/roKsndmoxH4?si=J_ZCD3lEmOW7MRBW',
     textContent: `
-      <h2>👥 Managing Human-AI Teams</h2>
+# Managing Human-AI Teams 👥
 
-      <h3>✅ Introduction</h3>
+https://youtu.be/roKsndmoxH4?si=J_ZCD3lEmOW7MRBW
 
-      <p>Human-AI teams combine humans and AI to achieve shared goals, leveraging complementary strengths for productivity and innovation. This is crucial in global workplaces, from customer service to healthcare, where effective management ensures success.</p>
+## Introduction
 
-      <h3>✅ Characteristics of Human-AI Teams</h3>
+Human-AI teams combine humans and AI to achieve shared goals, leveraging complementary strengths for productivity and innovation. This is crucial in global workplaces, from customer service to healthcare, where effective management ensures success.
 
-      <p>Humans bring creativity, empathy, and moral judgment, while AI offers data processing, consistency, and speed, enabling global scalability. Interdependence requires effective coordination, and dynamic roles position AI as a teammate, assistant, or tool based on context.</p>
+---
 
-      <h3>✅ Challenges in Managing Human-AI Teams</h3>
+## Characteristics of Human-AI Teams
 
-      <h4>Trust and Transparency</h4>
+- **Complementary Strengths**: Humans bring creativity, empathy, and moral judgment; AI offers data processing, consistency, and speed
+- **Interdependence**: Effective coordination required
+- **Dynamic Roles**: AI as teammate, assistant, or tool based on context
 
-      <p>Humans must trust AI outputs, requiring explainable AI to clarify reasoning, fostering global team cohesion. Challenges include ensuring clarity for non-experts, and ethical concerns involve transparency in AI decisions.</p>
+---
 
-      <h4>Communication and Interaction</h4>
+## Challenges in Managing Human-AI Teams
 
-      <p>Different communication modes (human language vs. AI data) require intuitive interfaces like dashboards, supporting global collaboration. Challenges include managing misunderstandings, and ethical concerns involve accessibility.</p>
+https://youtu.be/Va026z4dN-s?si=aVACSfmL8vr2Hb5G
 
-      <h4>Role Clarity and Task Allocation</h4>
+### Trust and Transparency
 
-      <p>Clear task division—AI for data-heavy work, humans for judgment—prevents automation bias or resistance globally. Challenges include dynamic reallocation, and ethical concerns involve ensuring human control.</p>
+Humans must trust AI outputs, requiring explainable AI to clarify reasoning, fostering global team cohesion. Challenges include ensuring clarity for non-experts.
 
-      <h4>Ethical and Social Considerations</h4>
+### Communication and Interaction
 
-      <p>Accountability for AI-influenced decisions, privacy in data sharing, and bias mitigation are critical for global trust.</p>
+Different communication modes (human language vs. AI data) require intuitive interfaces like dashboards, supporting global collaboration. Challenges include managing misunderstandings.
 
-      <h3>✅ Strategies for Effective Human-AI Team Management</h3>
+### Role Clarity and Task Allocation
 
-      <h4>Build AI Literacy</h4>
+Clear task division—AI for data-heavy work, humans for judgment—prevents automation bias or resistance globally. Challenges include dynamic reallocation.
 
-      <p>Training teams on AI capabilities and limitations fosters collaboration, supporting global adoption.</p>
+### Ethical and Social Considerations
 
-      <h4>Foster Trust</h4>
+Accountability for AI-influenced decisions, privacy in data sharing, and bias mitigation are critical for global trust.
 
-      <p>Transparent, explainable AI tools and feedback loops build trust globally.</p>
+---
 
-      <h4>Define Clear Roles and Boundaries</h4>
+## Strategies for Effective Human-AI Team Management
 
-      <p>Assigning tasks based on strengths ensures efficiency, with AI handling repetitive work and humans managing relationships.</p>
+### Build AI Literacy
 
-      <h4>Design Collaborative Workflows</h4>
+Training teams on AI capabilities and limitations fosters collaboration, supporting global adoption.
 
-      <p>Integrating AI into human workflows via intuitive tools enhances global productivity.</p>
+### Foster Trust
 
-      <h4>Encourage Continuous Learning and Adaptation</h4>
+Transparent, explainable AI tools and feedback loops build trust globally.
 
-      <p>AI and humans learn from interactions, improving systems globally. Ethical concerns involve data privacy.</p>
+### Define Clear Roles and Boundaries
 
-      <h3>✅ Benefits of Well-Managed Human-AI Teams</h3>
+Assigning tasks based on strengths ensures efficiency, with AI handling repetitive work and humans managing relationships.
 
-      <p>Well-managed teams enhance productivity by leveraging AI for routine tasks and humans for creativity, improve decision-making with combined insights, foster innovation through AI-generated ideas, and increase employee satisfaction by reducing workload, supporting global workplaces.</p>
+### Design Collaborative Workflows
 
-      <h3>✅ Case Studies / Real-World Examples</h3>
+Integrating AI into human workflows via intuitive tools enhances global productivity.
 
-      <p>In healthcare, AI highlights anomalies in scans, and doctors diagnose, improving global patient outcomes. In finance, AI flags transactions, and analysts act, enhancing security. Customer service uses chatbots for FAQs, with humans handling complex issues, scaling globally.</p>
+### Encourage Continuous Learning and Adaptation
 
-      <h3>✅ Future Directions</h3>
+AI and humans learn from interactions, improving systems globally. Ethical concerns involve data privacy.
 
-      <p>Adaptive AI teammates, emotional AI, multi-agent collaboration, and personalized AI partners will enhance global team dynamics, supported by ethical frameworks.</p>
+---
 
-      <h3>✅ Discussion Questions</h3>
+## Benefits of Well-Managed Human-AI Teams
 
-      <ul>
-        <li>How can managers prevent over-dependence on AI in decision-making?</li>
-        <li>What ethical frameworks should guide accountability in human-AI team decisions?</li>
-        <li>How will team dynamics change as AI becomes more autonomous?</li>
-      </ul>
+- **Enhanced Productivity**: Leverage AI for routine tasks, humans for creativity
+- **Improved Decision-Making**: Combined insights
+- **Innovation**: AI-generated ideas refined by humans
+- **Employee Satisfaction**: Reduced workload through automation
 
-      <p>Learners will discuss these to develop strategies for effective, ethical team management globally.</p>
+---
 
-      <h3>✅ Summary</h3>
+## Case Studies / Real-World Examples
 
-      <p>Human-AI teams leverage complementary strengths for productivity and innovation, but challenges like trust, communication, and ethics require careful management. Strategies like AI literacy, transparency, and clear workflows ensure success, preparing learners to lead ethical, effective human-AI teams in global workplaces.</p>
+- **Healthcare**: AI highlights anomalies in scans, doctors diagnose
+- **Finance**: AI flags transactions, analysts act
+- **Customer Service**: Chatbots handle FAQs, humans manage complex issues
 
-      <h3>✅ Key Takeaways</h3>
-      <ul>
-        <li>Human-AI teams combine complementary strengths for enhanced productivity</li>
-        <li>Key challenges include trust, communication, and role clarity</li>
-        <li>Effective management requires AI literacy and transparent workflows</li>
-        <li>Benefits include improved decision-making and innovation</li>
-        <li>Future trends include adaptive AI teammates and emotional AI</li>
-      </ul>
+---
+
+## Future Directions
+
+- **Adaptive AI Teammates**: Learn individual preferences
+- **Emotional AI**: Detect and respond to team member emotions
+- **Multi-Agent Collaboration**: Multiple AI systems work together
+- **Personalized AI Partners**: Tailored to individual work styles
+- **Ethical Frameworks**: Guide responsible team management
+
+---
+
+## Discussion Questions
+
+- How can managers prevent over-dependence on AI in decision-making?
+- What ethical frameworks should guide accountability in human-AI team decisions?
+- How will team dynamics change as AI becomes more autonomous?
+
+---
+
+## Summary
+
+Human-AI teams leverage complementary strengths for productivity and innovation, but challenges like trust, communication, and ethics require careful management. Strategies like AI literacy, transparency, and clear workflows ensure success, preparing learners to lead ethical, effective human-AI teams in global workplaces.
     `
   }
-}; 
+};

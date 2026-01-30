@@ -1,8 +1,10 @@
-export const lesson7_3 = {
+import type { Lesson } from '@/types/course';
+
+export const lesson7_3: Lesson = {
   id: 28,
   title: 'AI for Enhancing Well-Being and Connection',
   duration: '130:00',
-  type: 'video' as const,
+  type: 'video',
   content: {
     videoUrl: 'https://www.youtube.com/watch?v=K3m7VuS3Dw0&t=2s',
     textContent: `

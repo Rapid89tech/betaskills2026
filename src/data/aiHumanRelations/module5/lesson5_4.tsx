@@ -1,8 +1,10 @@
-export const lesson5_4 = {
+import type { Lesson } from '@/types/course';
+
+export const lesson5_4: Lesson = {
   id: 20,
   title: 'Impact of AI on Teacher-Student Relationships',
   duration: '120:00',
-  type: 'video' as const,
+  type: 'video',
   content: {
     videoUrl: 'https://youtu.be/V9N8dsG_tCs?si=tMrsL6WD6_rkmQ8O',
     textContent: `

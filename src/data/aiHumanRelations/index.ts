@@ -1,32 +1,33 @@
-
-import { Course, Module } from '@/types/course';
-import { module1 } from './module1';
-import { module2 } from './module2';
-import { module3 } from './module3';
-import { module4 } from './module4';
-import { module5 } from './module5';
-import { module6 } from './module6';
-import { module7 } from './module7';
+import { Course } from '@/types/course';
+import { module1 } from './module1-foundationsOfAI';
+import { module2 } from './module2-communicationEmotionalIntelligence';
+import { module3 } from './module3-aiInWorkplace';
+import { module4 } from './module4-ethicsEmpathy';
+import { module5 } from './module5-educationLearning';
+import { module6 } from './module6-legalPsychological';
+import { module7 } from './module7-designingHumanCenteredAI';
+import { module8 } from './module8-principlesHumanCenteredDesign';
+import { module9 } from './module9-futureHumanAIRelations';
 
 export const aiHumanRelationsCourse: Course = {
   id: 'ai-human-relations',
-  title: 'AI & Human Relations 101',
+  title: 'AI & Human Relations',
   description: 'This comprehensive online course delves into the intricate interplay between Artificial Intelligence (AI) and Human Relations, exploring how AI shapes communication, emotional intelligence, workplace dynamics, ethical considerations, and societal structures.',
   instructor: {
-    name: 'Dr. Sarah Chen',
-    title: 'AI Ethics Researcher & Human-Computer Interaction Expert',
-    bio: 'With over 15 years of experience in AI research and human-computer interaction, Dr. Chen has published extensively on AI ethics, emotional intelligence in technology, and the future of human-AI collaboration.',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
+    id: 'ai-human-relations-instructor',
+    first_name: 'Beta Skill',
+    last_name: 'Tutor',
+    email: 'betaskilltraining@gmail.com'
   },
   duration: '36 weeks',
   level: 'Beginner',
   category: 'Technology & Society',
-  is_free: false,
+  is_free: true,
   price: 500,
   currency: 'ZAR',
   students: 1247,
   rating: 4.8,
-  thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
+  thumbnail: '/images/generation-8dea647f-b6de-42c7-8708-d6e68a0fe5d1.png',
   learningObjectives: [
     'Analyze the impact of AI on human communication, including virtual assistants, chatbots, and social media algorithms',
     'Evaluate ethical dilemmas in AI applications, such as bias in decision-making systems and privacy concerns',
@@ -36,6 +37,10 @@ export const aiHumanRelationsCourse: Course = {
     'Critically interpret societal shifts driven by AI, such as changes in trust, relationships, and cultural norms',
     'Utilize online tools to simulate AI-driven interactions and analyze their impact on human behavior'
   ],
+  status: 'published',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  available: true,
   modules: [
     module1,
     module2,
@@ -43,6 +48,8 @@ export const aiHumanRelationsCourse: Course = {
     module4,
     module5,
     module6,
-    module7
+    module7,
+    module8,
+    module9
   ]
 };

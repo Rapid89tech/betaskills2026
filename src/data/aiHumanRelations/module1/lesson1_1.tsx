@@ -1,105 +1,431 @@
-export const lesson1_1 = {
+import type { Lesson } from '@/types/course';
+
+export const lesson1_1: Lesson = {
   id: 1,
   title: '🤖 What is AI? Types and Capabilities',
-  duration: '120:00',
-  type: 'video' as const,
+  duration: '120 min',
+  type: 'video',
   content: {
     videoUrl: 'https://youtu.be/TZmVLNGUX4M',
     textContent: `
-      <h2>🤖 Lecture Notes: What is AI? Types and Capabilities</h2>
+# 🤖 What is AI? Types and Capabilities
 
-      <h3>✅ Introduction to Artificial Intelligence (AI)</h3>
+## Introduction to Artificial Intelligence (AI)
 
-      <p>Artificial Intelligence (AI) is a transformative field within computer science dedicated to creating systems that emulate human cognitive processes, such as reasoning, learning, problem-solving, perception, language comprehension, and autonomous decision-making. Beyond mere automation, AI seeks to replicate and enhance the intellectual capabilities that define human intelligence, enabling machines to adapt to complex scenarios, process vast datasets, and engage with humans in intuitive, meaningful ways.</p>
+https://youtu.be/TZmVLNGUX4M
 
-      <p>This technology powers a wide range of innovations, from virtual assistants like Siri and Alexa to recommendation algorithms on platforms like Netflix and Spotify, and autonomous vehicles navigating urban environments. In human relations, AI's ability to analyze emotions, streamline communication, and personalize interactions holds immense potential to revolutionize workplace dynamics, healthcare delivery, and social connectivity.</p>
+Artificial Intelligence (AI) is a transformative field within computer science dedicated to creating systems that emulate human cognitive processes, such as reasoning, learning, problem-solving, perception, language comprehension, and autonomous decision-making.
 
-      <p>For instance, AI-driven tools in HR can optimize recruitment by analyzing candidate profiles with precision, while in healthcare, AI enhances diagnostics and mental health support, improving access to care. However, its deployment demands rigorous ethical oversight to address challenges like algorithmic bias, data privacy, and accountability, ensuring AI serves as a tool for inclusivity and empowerment.</p>
+Beyond mere automation, AI seeks to replicate and enhance the intellectual capabilities that define human intelligence, enabling machines to adapt to complex scenarios, process vast datasets, and engage with humans in intuitive, meaningful ways.
 
-      <h3>✅ Historical Background</h3>
+**Applications in Daily Life:**
+* Virtual assistants like Siri and Alexa
+* Recommendation algorithms on Netflix and Spotify
+* Autonomous vehicles navigating urban environments
 
-      <p>The evolution of Artificial Intelligence is a remarkable journey of human ingenuity, spanning over seven decades from theoretical concepts to ubiquitous technologies that redefine human relations. In 1950, Alan Turing introduced the Turing Test, a groundbreaking framework that challenged machines to mimic human conversation so convincingly that a human could not distinguish it from another person, laying the philosophical foundation for AI's pursuit of human-like interaction.</p>
+**Impact on Human Relations:**
 
-      <p>This test remains a benchmark for evaluating AI's communicative abilities, influencing the design of modern chatbots and virtual assistants that enhance workplace and social interactions. In 1956, the Dartmouth Conference formalized AI as a distinct academic discipline, bringing together pioneers like John McCarthy to ignite global research into intelligent systems capable of emulating human cognition.</p>
+In human relations, AI's ability to analyze emotions, streamline communication, and personalize interactions holds immense potential to revolutionize workplace dynamics, healthcare delivery, and social connectivity.
 
-      <h3>✅ Types of AI: A Comprehensive Overview</h3>
+For instance, AI-driven tools in HR can optimize recruitment by analyzing candidate profiles with precision, while in healthcare, AI enhances diagnostics and mental health support, improving access to care.
 
-      <h4>AI Based on Capabilities 🤖</h4>
+However, its deployment demands rigorous ethical oversight to address challenges like algorithmic bias, data privacy, and accountability, ensuring AI serves as a tool for inclusivity and empowerment.
 
-      <h5>Narrow AI</h5>
+**AI's Defining Characteristics:**
 
-      <p>Narrow AI, often referred to as Weak AI, is designed to excel in specific, well-defined tasks, making it the most prevalent form of AI in use today. It powers everyday technologies like voice assistants (e.g., Siri, Alexa), email spam filters, and AI-driven resume screening tools in human resources. Its strength lies in its precision and efficiency within constrained domains, enabling organizations to streamline processes and enhance accessibility.</p>
+* **Perception:** Interprets sensory inputs (facial recognition, speech transcription)
+* **Reasoning:** Draws logical conclusions (medical diagnostics, treatment suggestions)
+* **Learning:** Improves performance over time through data analysis
+* **Environmental Interaction:** Responds dynamically to real-world inputs
+* **Autonomy:** Operates independently within defined parameters
 
-      <p>For instance, in HR, Narrow AI can analyze thousands of job applications to identify top candidates, reducing manual workload and accelerating recruitment. In customer service, chatbots powered by Narrow AI handle routine inquiries 24/7, improving user satisfaction and operational efficiency. However, its inability to generalize beyond its programmed scope limits its adaptability, meaning it cannot perform tasks outside its designated function without significant reprogramming.</p>
+These characteristics position AI as a powerful ally in human relations, capable of streamlining tasks, enhancing accessibility, and fostering collaboration, but their application requires robust ethical frameworks to mitigate risks like bias or data misuse.
 
-      <h5>General AI</h5>
+---
 
-      <p>General AI, or Strong AI, represents a theoretical leap forward—an AI capable of performing any intellectual task a human can, with full cognitive abilities like reasoning, memory, problem-solving, and adaptability across diverse contexts. Unlike Narrow AI, General AI would not be confined to specific tasks but could seamlessly transition between domains, such as diagnosing a medical condition, composing music, or managing a business strategy, all with human-like proficiency.</p>
+## Historical Background
 
-      <p>While still in the research phase and not yet achieved, General AI holds immense potential to revolutionize human-AI collaboration in fields like education, therapy, and organizational management. For example, a General AI could serve as a universal educator, adapting teaching methods to individual student needs across subjects, or act as a versatile workplace assistant, handling everything from scheduling to strategic planning.</p>
+https://youtu.be/zExHlzp6p-4
 
-      <h5>Super AI</h5>
+The evolution of Artificial Intelligence is a remarkable journey of human ingenuity, spanning over seven decades from theoretical concepts to ubiquitous technologies that redefine human relations.
 
-      <p>Super AI is a hypothetical construct envisioning AI that surpasses human intelligence across all domains, from analytical problem-solving to creative endeavors and emotional intelligence. Unlike General AI, which matches human capabilities, Super AI would exceed them, potentially solving complex global challenges like climate change or disease eradication with unprecedented efficiency, or creating art, music, or literature that rivals or outshines human creativity.</p>
+**Key Milestones:**
 
-      <p>In human relations, Super AI could transform societal structures by automating intricate decision-making processes, such as policy development or conflict resolution, with a level of insight beyond human capacity. However, its theoretical implications spark intense debates about control, societal impact, and existential risks.</p>
+**1950 - The Turing Test:**
+Alan Turing introduced a groundbreaking framework that challenged machines to mimic human conversation so convincingly that a human could not distinguish it from another person. This test remains a benchmark for evaluating AI's communicative abilities, influencing the design of modern chatbots and virtual assistants.
 
-      <h4>AI Based on Functionality</h4>
+**1956 - Dartmouth Conference:**
+The conference formalized AI as a distinct academic discipline, bringing together pioneers like John McCarthy to ignite global research into intelligent systems capable of emulating human cognition.
 
-      <h5>Reactive Machines</h5>
+**1980s-1990s - Expert Systems:**
+Systems like MYCIN emerged, assisting medical professionals with diagnoses by applying rule-based logic, demonstrating AI's potential to augment human decision-making in specialized domains like healthcare and finance.
 
-      <p>Reactive Machines represent the most basic form of AI, operating with pre-programmed responses to specific inputs without the ability to learn or retain memory. A classic example is IBM's Deep Blue, which defeated chess grandmaster Garry Kasparov by evaluating board positions and selecting optimal moves based on fixed algorithms.</p>
+**2010s - Deep Learning Era:**
+The advent of deep learning, powered by neural networks and vast datasets, enabled AI to achieve unprecedented accuracy in tasks like image recognition, natural language processing, and personalization. This period saw AI permeate everyday life through:
+* Google's search algorithms
+* Amazon's recommendation systems
+* Voice-activated assistants
 
-      <p>In human relations, Reactive Machines excel in controlled environments with clear rules, such as automated ticketing systems or basic customer service bots that respond to predefined queries like "What are your hours?" Their simplicity ensures reliability and speed in repetitive tasks, making them cost-effective for businesses seeking to automate routine interactions.</p>
+**Today:**
+AI's influence extends to human relations, enhancing workplace collaboration through AI-driven HR tools, personalizing education with adaptive learning platforms, and addressing societal challenges like healthcare accessibility.
 
-      <h5>Limited Memory AI</h5>
+However, its rapid growth underscores the need for ethical oversight to ensure fairness, transparency, and inclusivity in its applications.
 
-      <p>Limited Memory AI builds on Reactive Machines by incorporating short-term memory to leverage past data for real-time decision-making, making it highly valuable in dynamic human contexts. Self-driving cars are a prime example, using sensors and historical data to navigate traffic patterns, avoid obstacles, and enhance human safety and mobility.</p>
+---
 
-      <p>In human relations, Limited Memory AI powers applications like personalized recommendation systems (e.g., Netflix suggesting shows based on viewing history) or HR analytics tools that predict employee turnover by analyzing past performance data. Its ability to adapt based on recent inputs enables more responsive and context-aware interactions, such as chatbots that recall previous parts of a conversation to provide coherent responses.</p>
+## Types of AI: A Comprehensive Overview 🌐
 
-      <h5>Theory of Mind AI</h5>
+The classification of Artificial Intelligence (AI) by capabilities and functionality provides a robust framework for understanding its diverse applications and profound implications for human relations.
 
-      <p>Theory of Mind AI, still in the experimental stage, aims to understand human emotions, beliefs, and intentions, marking a significant step toward empathetic human-AI interactions. This type of AI seeks to interpret subtle cues, such as facial expressions, voice tones, or text sentiment, to respond in ways that align with human emotional states.</p>
+This module explores AI types, their definitions, characteristics, and roles in shaping human interactions, from practical tools to theoretical frontiers that challenge our understanding of intelligence.
 
-      <p>In human relations, Theory of Mind AI holds transformative potential for fields like mental health therapy, where AI could detect signs of distress and offer tailored support, or education, where it could adapt teaching methods based on a student's emotional engagement. For example, an AI tutor could sense frustration through webcam analysis and adjust its approach to encourage learning.</p>
+**Classification Framework:**
+* **By Capabilities:** Narrow AI, General AI, Super AI
+* **By Functionality:** Reactive Machines, Limited Memory AI, Theory of Mind AI, Self-Aware AI
 
-      <h5>Self-Aware AI</h5>
+---
 
-      <p>Self-Aware AI is a purely theoretical concept, positing machines with consciousness, self-awareness, and an understanding of their own existence and internal states. This speculative AI would not only perform tasks or interpret emotions but also possess a sense of identity and subjective experience, akin to human consciousness.</p>
+## AI Based on Capabilities 🤖
 
-      <p>In human relations, Self-Aware AI could theoretically act as a true partner, capable of forming deep, reciprocal relationships, such as serving as a lifelong companion or collaborator in creative and decision-making processes. For example, a Self-Aware AI could co-author a novel, intuitively understanding narrative nuances and emotional resonance, or mediate workplace disputes with a nuanced grasp of human motivations.</p>
+### Narrow AI (Weak AI)
 
-      <h3>✅ Core Capabilities of AI</h3>
+https://youtu.be/nZ7c9ScclKs
 
-      <p>AI's core capabilities—Machine Learning, Natural Language Processing, Computer Vision, Robotics, and Expert Systems—form the technological backbone of its integration into human relations, driving efficiency, personalization, and innovation across diverse sectors while requiring careful ethical management.</p>
+Narrow AI is designed to excel in specific, well-defined tasks, making it the most prevalent form of AI in use today.
 
-      <p>Machine Learning (ML) enables AI to learn from data and improve over time without explicit programming, powering applications like personalized learning platforms in education that adapt to individual student needs or predictive analytics in HR to assess employee engagement and turnover risk.</p>
+**Common Applications:**
+* Voice assistants (Siri, Alexa)
+* Email spam filters
+* AI-driven resume screening tools in HR
+* Customer service chatbots
 
-      <p>Natural Language Processing (NLP) allows AI to understand, generate, and respond to human language, enabling seamless communication through chatbots that handle customer queries, virtual assistants that manage schedules, or translation tools that bridge linguistic divides in global workplaces.</p>
+**Strengths:**
+* Precision and efficiency within constrained domains
+* Enables organizations to streamline processes
+* Enhances accessibility
 
-      <p>Computer Vision empowers AI to interpret visual inputs, from facial recognition in security systems to sign language recognition for accessibility, enhancing inclusivity in human interactions but raising privacy concerns that demand robust safeguards like anonymization and consent protocols.</p>
+**Example Use Cases:**
 
-      <h3>✅ Real-World Applications of AI</h3>
+In HR, Narrow AI can analyze thousands of job applications to identify top candidates, reducing manual workload and accelerating recruitment.
 
-      <p>AI's real-world applications span critical sectors, profoundly influencing human relations by enhancing efficiency, accessibility, and personalization while posing ethical challenges that demand careful management to ensure equitable outcomes.</p>
+In customer service, chatbots powered by Narrow AI handle routine inquiries 24/7, improving user satisfaction and operational efficiency.
 
-      <p>In healthcare, AI powers diagnostic tools that analyze medical imaging with precision, supporting doctors in early disease detection, and virtual therapists like Woebot provide scalable mental health support, improving access to care for underserved populations.</p>
+**Limitations:**
+* Cannot generalize beyond programmed scope
+* Cannot perform tasks outside designated function without reprogramming
+* Requires human oversight to address potential biases
 
-      <p>In finance, AI-driven fraud detection systems monitor transactions in real-time, protecting consumers from identity theft, while algorithmic trading optimizes investment strategies, streamlining financial interactions.</p>
+**Ethical Considerations:**
 
-      <p>Transportation benefits from AI through autonomous vehicles and traffic management systems that reduce accidents and congestion, improving human mobility and urban planning, though public acceptance hinges on addressing safety concerns and ensuring accountability in accidents.</p>
+Early AI recruitment tools faced criticism for prioritizing male candidates when trained on male-dominated datasets, highlighting the need for diverse data and regular audits.
 
-      <p>In entertainment, recommendation systems on platforms like Netflix and YouTube personalize content delivery, enhancing user engagement by aligning with individual preferences, but their influence on behavior raises concerns about filter bubbles and privacy, necessitating transparent data practices.</p>
+---
 
-      <h3>✅ Key Takeaways</h3>
-      <ul>
-        <li>AI is a transformative field that emulates human cognitive processes and enhances human capabilities</li>
-        <li>Different types of AI (Narrow, General, Super) serve various purposes in human relations</li>
-        <li>AI's core capabilities enable diverse applications across healthcare, finance, transportation, and more</li>
-        <li>Real-world AI applications enhance efficiency and personalization but require ethical oversight</li>
-        <li>Understanding AI's types and capabilities is essential for responsible integration into human contexts</li>
-      </ul>
+### General AI (Strong AI)
+
+https://youtu.be/LhLyOWoUnDI
+
+General AI represents a theoretical leap forward—an AI capable of performing any intellectual task a human can, with full cognitive abilities like reasoning, memory, problem-solving, and adaptability across diverse contexts.
+
+**Key Characteristics:**
+* Not confined to specific tasks
+* Can seamlessly transition between domains
+* Human-like proficiency across all areas
+
+**Potential Applications:**
+* Universal educator adapting to individual student needs
+* Versatile workplace assistant handling scheduling to strategic planning
+* Medical diagnosis, music composition, business strategy
+
+**Current Status:**
+Still in the research phase and not yet achieved.
+
+**Ethical Questions:**
+* Autonomy and accountability
+* Preservation of human agency
+* Control and oversight mechanisms
+
+---
+
+### Super AI
+
+https://youtu.be/PjqGbEE7EYc?si=tc2rcjq6W2hakMUQ
+
+Super AI is a hypothetical construct envisioning AI that surpasses human intelligence across all domains, from analytical problem-solving to creative endeavors and emotional intelligence.
+
+**Distinguishing Features:**
+* Exceeds human capabilities (not just matches them)
+* Could solve complex global challenges (climate change, disease eradication)
+* Potential for creativity rivaling or outshining human output
+
+**Potential Impact on Human Relations:**
+* Transform societal structures
+* Automate intricate decision-making (policy development, conflict resolution)
+* Provide insights beyond human capacity
+
+**Concerns:**
+* Control and societal impact
+* Existential risks
+* Ethical implications of superintelligence
+
+---
+
+## AI Based on Functionality
+
+https://youtu.be/2FM-dM8NTWE
+
+### Reactive Machines
+
+Reactive Machines represent the most basic form of AI, operating with pre-programmed responses to specific inputs without the ability to learn or retain memory.
+
+**Classic Example:**
+IBM's Deep Blue defeated chess grandmaster Garry Kasparov by evaluating board positions and selecting optimal moves based on fixed algorithms.
+
+**Applications in Human Relations:**
+* Automated ticketing systems
+* Basic customer service bots responding to predefined queries
+* Simple rule-based interactions
+
+**Advantages:**
+* Reliability and speed in repetitive tasks
+* Cost-effective for businesses
+* Predictable behavior
+
+**Limitations:**
+* No learning capability
+* No memory of past interactions
+* Limited to pre-programmed scenarios
+
+---
+
+### Limited Memory AI
+
+Limited Memory AI builds on Reactive Machines by incorporating short-term memory to leverage past data for real-time decision-making, making it highly valuable in dynamic human contexts.
+
+**Primary Example:**
+Self-driving cars use sensors and historical data to navigate traffic patterns, avoid obstacles, and enhance human safety and mobility.
+
+**Applications in Human Relations:**
+* Personalized recommendation systems (Netflix suggesting shows based on viewing history)
+* HR analytics tools predicting employee turnover
+* Adaptive learning platforms
+
+**Key Features:**
+* Uses historical data for better decisions
+* Adapts to changing conditions
+* Improves user experience through personalization
+
+---
+
+### Theory of Mind AI
+
+Theory of Mind AI, still in the experimental stage, aims to understand human emotions, beliefs, and intentions, marking a significant step toward empathetic human-AI interactions.
+
+**Capabilities:**
+* Interpret facial expressions
+* Analyze voice tones
+* Understand text sentiment
+* Respond aligned with human emotional states
+
+**Potential Applications:**
+* Mental health therapy detecting signs of distress
+* Education adapting teaching methods based on emotional engagement
+* Customer service with emotional awareness
+
+**Current Status:**
+Experimental and under development.
+
+---
+
+### Self-Aware AI
+
+https://youtu.be/2FM-dM8NTWE
+
+Self-Aware AI is a purely theoretical concept, positing machines with consciousness, self-awareness, and an understanding of their own existence and internal states.
+
+**Theoretical Characteristics:**
+* Consciousness and self-awareness
+* Sense of identity
+* Subjective experience
+* Understanding of own existence
+
+**Hypothetical Role in Human Relations:**
+* Act as true partner
+* Form deep, reciprocal relationships
+* Serve as lifelong companion or collaborator
+
+**Status:**
+Purely speculative and not currently achievable.
+
+---
+
+## Core Capabilities of AI
+
+https://youtu.be/baNa-6JXbbk
+
+AI's core capabilities form the technological backbone of its integration into human relations, driving efficiency, personalization, and innovation across diverse sectors.
+
+### Machine Learning (ML)
+
+Enables AI to learn from data and improve over time without explicit programming.
+
+**Applications:**
+* Personalized learning platforms adapting to individual student needs
+* Predictive analytics in HR assessing employee engagement
+* Recommendation systems
+
+### Natural Language Processing (NLP)
+
+Allows AI to understand, generate, and respond to human language.
+
+**Applications:**
+* Chatbots handling customer queries
+* Virtual assistants managing schedules
+* Translation tools bridging linguistic divides
+
+### Computer Vision
+
+Empowers AI to interpret visual inputs.
+
+**Applications:**
+* Facial recognition in security systems
+* Sign language recognition for accessibility
+* Medical imaging analysis
+
+**Privacy Considerations:**
+Raises concerns that demand robust safeguards.
+
+---
+
+## Real-World Applications of AI
+
+https://youtu.be/tHHHYRLXGi4
+
+AI's real-world applications span critical sectors, profoundly influencing human relations by enhancing efficiency, accessibility, and personalization.
+
+### Healthcare
+* Diagnostic tools analyzing medical imaging
+* Virtual therapists (e.g., Woebot) providing mental health support
+* Improved access to care for underserved populations
+
+### Finance
+* Fraud detection systems monitoring transactions
+* Algorithmic trading optimizing investments
+* Consumer protection
+
+### Transportation
+* Autonomous vehicles
+* Traffic management systems
+* Reduced accidents and congestion
+
+### Entertainment
+* Recommendation systems (Netflix, YouTube)
+* Personalized content delivery
+* Enhanced user engagement
+
+---
+
+## Ethical Considerations and Challenges
+
+https://youtu.be/VqFqWIqOB1g?si=mYh8ZERv9rN6P0kv
+
+The integration of AI into human relations introduces profound ethical considerations that must be addressed to ensure its benefits align with human values.
+
+### Bias in AI Systems
+
+Arises when algorithms trained on skewed datasets perpetuate discrimination.
+
+**Examples:**
+* Hiring tools favoring certain demographics
+* Criminal justice systems disproportionately targeting minorities
+
+**Solutions:**
+* Diverse training data
+* Regular audits
+* Bias detection tools
+
+### Data Privacy and Security
+
+AI's reliance on personal data raises risks of breaches or misuse.
+
+**Requirements:**
+* Robust security measures
+* Clear data usage policies
+* User consent protocols
+
+### Job Displacement
+
+Automation threatens livelihoods and economic stability.
+
+**Mitigation Strategies:**
+* Reskilling programs
+* Workforce transition support
+* Creating new AI-related roles
+
+### Accountability and Transparency
+
+Opaque AI decisions erode trust and agency.
+
+**Needs:**
+* Explainable AI (XAI)
+* Clear decision-making processes
+* Human oversight mechanisms
+
+---
+
+## AI's Role in Emotional Intelligence
+
+https://youtu.be/4QjZDUaDxQU?si=dizOk0hC6wRYBUdW
+
+AI's emerging role in emotional intelligence (EI) marks a significant frontier in human relations, enabling systems to detect, interpret, and respond to human emotions.
+
+**Affective Computing:**
+
+Involves analyzing:
+* Facial expressions
+* Voice tones
+* Text sentiment
+
+**Applications:**
+* Virtual therapists detecting distress (e.g., Woebot)
+* Educational systems adapting to emotional engagement
+* Customer service with empathy
+
+**Challenges:**
+* Ensuring cultural sensitivity
+* Addressing privacy concerns
+* Avoiding emotional manipulation
+
+---
+
+## AI and Human Collaboration
+
+https://youtu.be/QOKLW5ITEiI?si=aWLi4Xj8rHxeQYxe
+
+AI's potential to collaborate with humans as a partner, rather than a mere tool, is reshaping workplaces, creative industries, and decision-making processes.
+
+**Collaborative Approach:**
+
+AI augments rather than replaces human effort, combining:
+* Machine efficiency
+* Human intuition
+* Creativity
+* Ethical judgment
+
+**Examples:**
+* Design industries: Adobe's Sensei assisting artists
+* Healthcare: AI analyzing data while clinicians provide emotional support
+* Business: AI handling data analysis while humans make strategic decisions
+
+**Benefits:**
+* Enhanced productivity
+* Increased innovation
+* Better decision-making
+
+**Requirements:**
+* Clear protocols
+* Maintained human agency
+* Defined roles and responsibilities
     `
   }
-}; 
+};

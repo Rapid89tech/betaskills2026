@@ -1,8 +1,10 @@
-export const lesson7_2 = {
+import type { Lesson } from '@/types/course';
+
+export const lesson7_2: Lesson = {
   id: 27,
   title: 'Principles of Human-Centered Design (HCD)',
   duration: '140:00',
-  type: 'video' as const,
+  type: 'video',
   content: {
     videoUrl: 'https://youtu.be/COTOz4XmhWU?si=6VlnOD6oo29IefkY',
     textContent: `

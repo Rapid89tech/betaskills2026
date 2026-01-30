@@ -1,8 +1,10 @@
-export const lesson5_5 = {
+import type { Lesson } from '@/types/course';
+
+export const lesson5_5: Lesson = {
   id: 21,
   title: 'Humanizing Digital Education',
   duration: '110:00',
-  type: 'video' as const,
+  type: 'video',
   content: {
     videoUrl: 'https://youtu.be/m9svG1dPrk4?si=asv8r0W5ACd24Gpa',
     textContent: `

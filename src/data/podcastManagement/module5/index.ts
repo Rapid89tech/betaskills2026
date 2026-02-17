@@ -1,20 +1,16 @@
-import type { Module } from '@/types/course';
-import { lesson1UnderstandingPodcastHosting } from './lesson1-understanding-podcast-hosting';
-import { lesson2SubmittingToPodcastDirectories } from './lesson2-submitting-to-podcast-directories';
-import { lesson3RssFeedsAndDistribution } from './lesson3-rss-feeds-and-distribution';
-import { lesson4WebsiteIntegrationAndEmbedding } from './lesson4-website-integration-and-embedding';
-import { module5Quiz } from './quiz';
+import { Module } from '@/types/course';
+import { lesson1 } from './lesson1-selecting-hosting-platform';
+import { lesson2 } from './lesson2-setting-up-rss-feeds';
+import { quiz5 } from './quiz5';
 
 const module5: Module = {
   id: 5,
-  title: '🌐 Module 5: Hosting & Distribution',
-  description: 'Master the essential aspects of podcast hosting and distribution. Learn about podcast hosting services, submitting to podcast directories, RSS feeds and distribution, and website integration and embedding for comprehensive podcast distribution.',
+  title: 'Hosting & Distribution',
+  description: 'Learn how to select the right podcast hosting platform, set up RSS feeds, and distribute your podcast to major directories for maximum reach and accessibility.',
   lessons: [
-    lesson1UnderstandingPodcastHosting,
-    lesson2SubmittingToPodcastDirectories,
-    lesson3RssFeedsAndDistribution,
-    lesson4WebsiteIntegrationAndEmbedding,
-    module5Quiz
+    lesson1,
+    lesson2,
+    quiz5
   ]
 };
 

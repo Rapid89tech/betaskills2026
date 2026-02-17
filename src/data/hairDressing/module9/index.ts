@@ -1,13 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson9_1 } from './lesson9_1';
-import { quiz9 } from './quiz9';
+import type { Module } from '@/types/course';
+import { lesson1CurlingStraightening } from './lesson1-curling-straightening';
+import { module9Quiz } from './quiz9';
 
-export const module9: Module = {
+const module9: Module = {
   id: 9,
-  title: 'Curling and Straightening',
-  description: 'Master various curling techniques using wands, rollers, and irons, plus achieving sleek straight hair with temporary and permanent styling options',
+  title: '💫 Module 9: Curling and Straightening',
+  description: 'Master curling techniques with wands, irons, and rollers, achieve sleek straight hair, and understand temporary vs permanent styling',
   lessons: [
-    lesson9_1,
-    quiz9
+    lesson1CurlingStraightening,
+    module9Quiz
   ]
-}; 
+};
+
+export default module9;

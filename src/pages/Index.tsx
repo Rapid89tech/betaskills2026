@@ -177,6 +177,21 @@ const Index = () => {
                 </div>
               </div>
             </div>
+
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">AI and Human Relations</h3>
+                <p className="text-gray-600 mb-4">Explore AI, ethics, communication, and workplace applications</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-2xl font-bold text-red-600">R290</span>
+                  <Link to="/course/ai-human-relations">
+                    <Button className="bg-red-600 hover:bg-red-700 text-white">
+                      Learn More
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
           
           <div className="text-center mt-12">

@@ -1,20 +1,14 @@
-import type { Module } from '@/types/course';
-import { lesson1UnderstandingPodcastAnalytics } from './lesson1-understanding-podcast-analytics';
-import { lesson2AudienceGrowthStrategies } from './lesson2-audience-growth-strategies';
-import { lesson3PerformanceOptimization } from './lesson3-performance-optimization';
-import { lesson4LongTermSuccessStrategies } from './lesson4-long-term-success-strategies';
-import { module8Quiz } from './quiz';
+import { Module } from '@/types/course';
+import { lesson1 } from './lesson1-scaling-growth';
+import { quiz8 } from './quiz8';
 
 const module8: Module = {
   id: 8,
-  title: '📊 Module 8: Podcast Analytics & Growth',
-  description: 'Master podcast analytics and growth strategies. Learn how to understand podcast analytics, implement audience growth strategies, optimize performance, and develop long-term success strategies for sustainable podcast growth.',
+  title: 'Scaling and Growth',
+  description: 'Learn how to scale your podcast strategically by increasing listenership, improving content quality, expanding revenue streams, and building brand authority through sustainable growth practices.',
   lessons: [
-    lesson1UnderstandingPodcastAnalytics,
-    lesson2AudienceGrowthStrategies,
-    lesson3PerformanceOptimization,
-    lesson4LongTermSuccessStrategies,
-    module8Quiz
+    lesson1,
+    quiz8
   ]
 };
 

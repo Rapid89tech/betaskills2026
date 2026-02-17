@@ -1,13 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson12_1 } from './lesson12_1';
-import { quiz12 } from './quiz12';
+import type { Module } from '@/types/course';
+import { lesson1ClientConsultationBusiness } from './lesson1-client-consultation-business';
+import { module12Quiz } from './quiz12';
 
-export const module12: Module = {
+const module12: Module = {
   id: 12,
-  title: 'Client Consultation and Business Skills',
-  description: 'Master professional client consultation techniques, understanding client needs, recommending suitable styles and treatments, and managing client concerns effectively.',
+  title: '💼 Module 12: Client Consultation and Business Skills',
+  description: 'Master client consultations, style recommendations, managing client concerns, and essential business skills for salon success',
   lessons: [
-    lesson12_1,
-    quiz12
+    lesson1ClientConsultationBusiness,
+    module12Quiz
   ]
-}; 
+};
+
+export default module12;

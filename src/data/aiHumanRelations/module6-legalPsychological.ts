@@ -2,6 +2,7 @@ import type { Module } from '@/types/course';
 import { lesson6_1 } from './module6/lesson6_1';
 import { lesson6_2 } from './module6/lesson6_2';
 import { lesson6_3 } from './module6/lesson6_3';
+import { quiz6 } from './module6/quiz6';
 
 export const module6: Module = {
   id: 6,
@@ -10,6 +11,7 @@ export const module6: Module = {
   lessons: [
     lesson6_1,
     lesson6_2,
-    lesson6_3
+    lesson6_3,
+    quiz6
   ]
 };

@@ -1,13 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson10_1 } from './lesson10_1';
-import { quiz10 } from './quiz10';
+import type { Module } from '@/types/course';
+import { lesson1HairColoringTreatments } from './lesson1-hair-coloring-treatments';
+import { module10Quiz } from './quiz10';
 
-export const module10: Module = {
+const module10: Module = {
   id: 10,
-  title: 'Hair Coloring and Treatments',
-  description: 'Master hair coloring fundamentals including color levels, tones, application techniques like foiling, balayage, and ombre, plus hair treatment and care principles',
+  title: '🎨 Module 10: Hair Coloring and Treatments',
+  description: 'Master hair color levels and tones, types of hair color, application techniques (foiling, balayage, ombre), and deep conditioning treatments',
   lessons: [
-    lesson10_1,
-    quiz10
+    lesson1HairColoringTreatments,
+    module10Quiz
   ]
-}; 
+};
+
+export default module10;

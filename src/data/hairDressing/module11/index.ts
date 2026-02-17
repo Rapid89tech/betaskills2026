@@ -1,13 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson11_1 } from './lesson11_1';
-import { quiz11 } from './quiz11';
+import type { Module } from '@/types/course';
+import { lesson1ChemicalProcesses } from './lesson1-chemical-processes';
+import { module11Quiz } from './quiz11';
 
-export const module11: Module = {
+const module11: Module = {
   id: 11,
-  title: 'Chemical Processes in Hairdressing',
-  description: 'Master chemical processes including perming, relaxing, keratin treatments, and color correction techniques for professional hair styling.',
+  title: '🧪 Module 11: Chemical Processes in Hairdressing',
+  description: 'Master perming and relaxing techniques, keratin treatments, smoothing systems, and color correction methods',
   lessons: [
-    lesson11_1,
-    quiz11
+    lesson1ChemicalProcesses,
+    module11Quiz
   ]
-}; 
+};
+
+export default module11;

@@ -1,203 +1,118 @@
-import { Lesson } from '@/types/course';
+import type { Lesson } from '@/types/course';
 
 export const lesson2AudioCareers: Lesson = {
-  id: 'lesson2-audio-careers',
-  title: '🎙️ Audio Careers',
-  description: 'Exploring diverse career opportunities in the audio industry and required skills',
-  duration: '40 minutes',
-  type: 'lesson',
-  content: `
-# 🎙️ Audio Careers
+  id: 2,
+  title: 'Audio Careers',
+  duration: '40 min',
+  type: 'video',
+  content: {
+    videoUrl: 'https://youtu.be/zz5NHkUVBQA',
+    textContent: `
+# Audio Careers
+
+## 1. Introduction to Audio Careers
+
+https://youtu.be/zz5NHkUVBQA
+
+**Key Features**: Diverse Opportunities in Audio
+
+The audio industry offers varied careers in music, film, broadcasting, gaming, and more, driven by technological advances like immersive audio and remote production.
+
+The audio industry is a vibrant field with opportunities for creative and technical professionals. From producing chart-topping tracks to designing sound for virtual reality, careers are diverse and evolving. The course's online format allows learners to explore these paths through video case studies and interactive forums, connecting with global professionals. This accessibility ensures students can network and build skills from anywhere, preparing them for a competitive yet rewarding industry with growing demand for skilled audio engineers.
 
 ---
 
-## 1. <span style="color:#5a67d8;font-weight:700">Introduction to Audio Careers</span>
+## 2. Major Fields in Audio Careers
 
-<div style="display:flex;justify-content:center;margin:2rem 0;">
-  <iframe width="900" height="506" src="https://www.youtube.com/embed/zz5NHkUVBQA" frameborder="0" allowfullscreen style="border-radius:18px;box-shadow:0 8px 32px rgba(90,103,216,0.18);"></iframe>
-</div>
+https://youtu.be/1zWMFFkQihA
 
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Diverse Opportunities in Audio</span>
-</div>
+**Key Features**: Industry-Specific Roles
 
-The audio industry is a vibrant, ever-evolving field with opportunities for both creative and technical professionals. From producing chart-topping tracks to designing sound for virtual reality, careers are diverse and future-focused. Explore these paths through video case studies and interactive forums, and connect with global professionals.
+Fields include music production, film/TV sound, live sound, broadcasting, game audio, podcasting, audiobooks, and audio tech development, each requiring unique skills.
+
+Each field demands specialized knowledge, from mixing music tracks to creating immersive game audio. For instance, film sound engineers focus on dialogue clarity, while game audio professionals integrate dynamic soundscapes. The course provides targeted modules and project-based assignments to explore these fields, with online tools enabling hands-on practice. Discussion forums connect learners with peers pursuing similar paths, fostering collaboration and insight into industry-specific challenges and opportunities.
 
 ---
 
-## 2. <span style="color:#5a67d8;font-weight:700">Major Fields in Audio Careers</span>
+## 3. Common Job Titles & Roles
 
-<div style="display:flex;justify-content:center;margin:2rem 0;">
-  <iframe width="900" height="506" src="https://www.youtube.com/embed/1zWMFFkQihA" frameborder="0" allowfullscreen style="border-radius:18px;box-shadow:0 8px 32px rgba(90,103,216,0.18);"></iframe>
-</div>
+**Key Features**: Specific Roles and Responsibilities
 
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Industry-Specific Roles</span>
-</div>
+Roles include audio engineer, sound designer, mixing/mastering engineer, Foley artist, live sound technician, music producer, podcast editor, voiceover artist, and audio software developer.
 
-**Fields include:**
-- 🎵 <b>Music Production</b>: Recording, mixing, mastering
-- 🎬 <b>Film/TV Sound</b>: Sound design, Foley, ADR
-- 🎤 <b>Live Sound</b>: Concert and event audio
-- 📻 <b>Broadcasting</b>: Radio, TV, streaming
-- 🎮 <b>Game Audio</b>: Interactive sound design
-- 🎙️ <b>Podcasting</b>: Content creation and editing
-- 📚 <b>Audiobooks</b>: Narration and production
-- 🛠️ <b>Audio Tech Development</b>: Software and hardware
-
-Each field demands specialized knowledge, from mixing music tracks to creating immersive game audio. For example, film sound engineers focus on dialogue clarity, while game audio pros integrate dynamic soundscapes.
+Each role has distinct responsibilities, such as a Foley artist recreating sounds for films or a mastering engineer finalizing tracks for release. The course offers video tutorials and portfolio projects to simulate these roles, allowing learners to build relevant skills. Online accessibility ensures students can revisit content and receive feedback from instructors, helping them refine their expertise and create a professional demo reel tailored to their chosen career path.
 
 ---
 
-## 3. <span style="color:#5a67d8;font-weight:700">Common Job Titles & Roles</span>
+## 4. Required Skills and Tools
 
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Specific Roles and Responsibilities</span>
-</div>
+https://youtu.be/cv9U-CIqHsc
 
-**Common roles:**
-- Audio Engineer: Technical recording and mixing
-- Sound Designer: Creative sound creation
-- Mixing/Mastering Engineer: Final audio processing
-- Foley Artist: Recreating sounds for media
-- Live Sound Technician: Event audio management
-- Music Producer: Creative direction and production
-- Podcast Editor: Content editing and enhancement
-- Voiceover Artist: Professional voice recording
-- Audio Software Developer: Creating audio tools
+**Key Features**: Technical, Creative, and Soft Skills
 
-Each role has distinct responsibilities, such as a Foley artist recreating sounds for films or a mastering engineer finalizing tracks for release. The course offers video tutorials and portfolio projects to simulate these roles, allowing you to build real-world skills.
+Proficiency in DAWs, microphones, signal flow, sound aesthetics, music theory, critical listening, communication, time management, and problem-solving are essential.
+
+Success in audio careers requires a blend of technical expertise, creative vision, and interpersonal skills. For example, mastering Pro Tools is as crucial as collaborating with artists to achieve a desired sound. The course provides interactive DAW tutorials and peer review exercises to develop these skills, with online forums facilitating collaboration. This comprehensive approach ensures learners are well-equipped to handle the multifaceted demands of audio production in professional settings.
 
 ---
 
-## 4. <span style="color:#5a67d8;font-weight:700">Required Skills and Tools</span>
+## 5. Education and Training Paths
 
-<div style="display:flex;justify-content:center;margin:2rem 0;">
-  <iframe width="900" height="506" src="https://www.youtube.com/embed/cv9U-CIqHsc" frameborder="0" allowfullscreen style="border-radius:18px;box-shadow:0 8px 32px rgba(90,103,216,0.18);"></iframe>
-</div>
+**Key Features**: Formal, Informal, and Self-Learning Options
 
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Technical, Creative, and Soft Skills</span>
-</div>
+Paths include degrees in audio engineering, certifications (e.g., Pro Tools), internships, and self-learning via online tutorials, YouTube, and forums.
 
-**Essential skills:**
-- 🖥️ <b>Technical</b>: DAW proficiency, mic techniques, signal flow
-- 🎨 <b>Creative</b>: Sound aesthetics, music theory, critical listening
-- 🤝 <b>Soft Skills</b>: Communication, time management, problem-solving
-- 🛠️ <b>Tools</b>: Pro Tools, Logic Pro, Ableton Live, plugins
-
-Success in audio careers requires a blend of technical expertise, creative vision, and people skills. Mastering Pro Tools is as crucial as collaborating with artists to achieve a signature sound.
+Formal education provides structured learning, while certifications and internships offer practical experience. Self-learning through online resources is increasingly viable, especially with the course's digital platform. Learners can access video lectures, practice files, and community discussions to build skills at their own pace, ensuring flexibility for diverse schedules. This approach empowers students to tailor their education to their career goals, whether in a studio or as a freelancer.
 
 ---
 
-## 5. <span style="color:#5a67d8;font-weight:700">Education and Training Paths</span>
+## 6. Industry Trends
 
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Formal, Informal, and Self-Learning Options</span>
-</div>
+**Key Features**: Remote Production, Immersive Audio, AI
 
-**Paths include:**
-- 🎓 <b>Formal Education</b>: Degrees in audio engineering, music production
-- 🏅 <b>Certifications</b>: Pro Tools, Logic Pro, industry-specific
-- 🏢 <b>Internships</b>: Hands-on studio/production experience
-- 🌐 <b>Self-Learning</b>: Online tutorials, YouTube, forums, practice
+Trends include growth in remote production, immersive sound (Dolby Atmos), podcasting, and AI tools for vocal isolation and mastering.
 
-Formal education provides structure, while certifications and internships offer practical experience. Self-learning is increasingly viable, especially with digital platforms.
+The audio industry is rapidly evolving, with remote workflows and spatial audio gaining prominence. AI tools are transforming tasks like mastering, while podcasting continues to grow. The course's online format includes modules on these trends, with virtual labs to experiment with immersive audio and AI plugins. Discussion forums allow learners to share insights on emerging technologies, ensuring they stay ahead of industry shifts and are prepared for future opportunities.
 
 ---
 
-## 6. <span style="color:#5a67d8;font-weight:700">Industry Trends</span>
+## 7. Career Growth & Income Potential
 
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Remote Production, Immersive Audio, AI</span>
-</div>
+**Key Features**: Progression and Earnings
 
-**Trends:**
-- 🌍 Remote Production: Cloud-based workflows, global collab
-- 🎧 Immersive Audio: Dolby Atmos, spatial/3D sound
-- 🎙️ Podcasting Growth: Expanding content creation
-- 🤖 AI Integration: Automated mastering, vocal isolation, synthesis
-- 🕶️ Virtual Reality: Audio for VR/AR experiences
+Career levels range from entry-level ($20,000–$40,000 USD) to mid-level ($40,000–$70,000 USD) to senior-level ($70,000–$120,000+ USD), with freelancers varying by project.
 
-The industry is rapidly evolving, with remote workflows and spatial audio gaining prominence. AI tools are transforming tasks like mastering, while podcasting continues to boom.
+Career progression in audio depends on experience, specialization, and networking. Entry-level roles like assistants build skills, while senior roles like producers command higher salaries. The course supports career growth through portfolio development and online networking opportunities, allowing learners to connect with industry professionals. This prepares students to navigate the competitive landscape and achieve financial and creative success in their chosen audio career.
 
 ---
 
-## 7. <span style="color:#5a67d8;font-weight:700">Career Growth & Income Potential</span>
+## 8. Building a Career in Audio
 
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Progression and Earnings</span>
-</div>
+**Key Features**: Portfolio, Networking, Branding
 
-**Career levels & income:**
-- Entry-Level: $20,000–$40,000 USD (assistants, interns)
-- Mid-Level: $40,000–$70,000 USD (engineers, producers)
-- Senior-Level: $70,000–$120,000+ USD (producers, directors)
-- Freelancers: Variable, project-based
+Success requires a strong portfolio, networking at events, freelance platforms (Fiverr, Upwork), and an online presence showcasing work.
 
-Progression depends on experience, specialization, and networking. Entry-level roles build skills, while senior roles command higher salaries.
+A compelling portfolio demonstrates skills to potential employers or clients. Networking at expos or online platforms like LinkedIn expands opportunities. The course guides learners in creating demo reels through project-based assignments, with feedback from instructors and peers via online forums. This hands-on approach ensures students build a professional presence and gain practical experience, positioning them for success in a competitive industry.
 
 ---
 
-## 8. <span style="color:#5a67d8;font-weight:700">Building a Career in Audio</span>
+## 9. Challenges & Rewards
 
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Portfolio, Networking, Branding</span>
-</div>
+**Key Features**: Competitive Field, Creative Fulfillment
 
-**Success requires:**
-- 🎬 Strong Portfolio: Demo reel of your best work
-- 🤝 Networking: Industry events, online communities
-- 💻 Freelance Platforms: Fiverr, Upwork, audio platforms
-- 🌐 Online Presence: Website, social media, pro profiles
-- 📚 Continuous Learning: Stay updated with tech and trends
+Challenges include competition, irregular income, and long hours, while rewards include creative fulfillment, diverse paths, and remote work opportunities.
 
-A compelling portfolio and strong network open doors. The course guides you in creating demo reels and building your brand.
+The audio industry is competitive, with freelancers facing income variability, but the creative satisfaction of crafting unique soundscapes is unparalleled. The course's online format supports learners in overcoming challenges through community support and practical training. Virtual group projects and forums foster collaboration, helping students build resilience and capitalize on the diverse, rewarding opportunities available in audio careers worldwide.
 
 ---
 
-## 9. <span style="color:#5a67d8;font-weight:700">Challenges & Rewards</span>
+## 10. Summary
 
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Competitive Field, Creative Fulfillment</span>
-</div>
-
-**Challenges:**
-- High competition
-- Irregular income for freelancers
-- Long hours, tight deadlines
-- Constant tech adaptation
-
-**Rewards:**
-- Creative fulfillment
-- Diverse career paths
-- Remote work possibilities
-- Global collaboration
-- Impact on entertainment & media
-
----
-
-## 10. <span style="color:#5a67d8;font-weight:700">Summary</span>
-
-<div style="background:linear-gradient(90deg,#e0e7ff 0%,#f0e6ff 100%);padding:1rem 2rem;border-radius:12px;margin-bottom:1.5rem;border-left:5px solid #667eea;">
-  <b>🔑 Key Features:</b> <span style="color:#5a67d8">Evolving Industry, Skill Integration</span>
-</div>
+**Key Features**: Evolving Industry, Skill Integration
 
 Audio careers blend technical, creative, and networking skills, with growing demand in music, film, gaming, and emerging tech like AI and immersive audio.
 
----
-
-## 🚀 <span style="color:#764ba2;font-weight:700">Key Takeaways</span>
-
-1. Diverse career paths across music, film, gaming, and tech
-2. Technical and creative skills are both essential
-3. Continuous learning is crucial in this fast-evolving field
-4. Networking and portfolio building drive career growth
-5. Remote work opportunities are expanding
-6. AI and immersive audio are shaping the future
-7. Competition is high, but rewards are significant
-8. Education paths vary from formal degrees to self-learning
-
----
-`
+The audio industry offers dynamic opportunities for those who combine technical proficiency with creativity. The course's comprehensive resources, including video lectures and online communities, prepare learners to thrive in this evolving field. By mastering industry tools and trends, students can pursue fulfilling careers, leveraging the flexibility of online learning to build skills and connections globally.
+    `
+  }
 };

@@ -1,17 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson3_1 } from './lesson3_1';
-import { lesson3_2 } from './lesson3_2';
-import { lesson3_3 } from './lesson3_3';
-import { quiz3 } from './quiz3';
+import type { Module } from '@/types/course';
+import { lesson1SalonSafetyHygiene } from './lesson1-salon-safety-hygiene';
+import { module3Quiz } from './quiz3';
 
-export const module3: Module = {
+const module3: Module = {
   id: 3,
-  title: 'Salon Safety and Hygiene',
-  description: 'Learn the importance of sanitation and sterilization, proper handling of chemicals and tools, and maintaining a clean and organized workspace',
+  title: '🧼 Module 3: Salon Safety and Hygiene',
+  description: 'Learn sanitation, sterilization, chemical handling, and maintaining a clean workspace for professional salon operations',
   lessons: [
-    lesson3_1,
-    lesson3_2,
-    lesson3_3,
-    quiz3
+    lesson1SalonSafetyHygiene,
+    module3Quiz
   ]
-}; 
+};
+
+export default module3;

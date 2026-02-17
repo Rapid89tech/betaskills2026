@@ -1,23 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson2_1 } from './lesson2_1';
-import { lesson2_2 } from './lesson2_2';
-import { lesson2_3 } from './lesson2_3';
-import { quiz2_1 } from './quiz2_1';
+import type { Module } from '@/types/course';
+import { lesson1ManicuresPedicures } from './lesson1-manicures-pedicures';
+import { module2Quiz } from './quiz2';
 
-export const module2: Module = {
+const module2: Module = {
   id: 2,
-  title: 'Manicures and Pedicures',
-  description: 'Master professional manicure and pedicure techniques, including basic procedures, advanced services, and specialized treatments for different client needs.',
+  title: '💅 Module 2: Professional Manicure and Pedicure Techniques',
+  description: 'Master the art of professional manicures and pedicures, including preparation, cuticle care, shaping, polishing, and client comfort',
   lessons: [
-    lesson2_1,
-    lesson2_2,
-    lesson2_3,
-    {
-      id: quiz2_1.id,
-      title: quiz2_1.title,
-      duration: '0:00',
-      type: 'quiz',
-      content: { questions: quiz2_1.questions }
-    }
+    lesson1ManicuresPedicures,
+    module2Quiz
   ]
-}; 
+};
+
+export default module2;

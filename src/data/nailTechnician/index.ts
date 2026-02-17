@@ -1,44 +1,29 @@
-
-import { Course, Module } from '@/types/course';
-import { module1 } from './module1';
-import { module2 } from './module2';
-import { module3 } from './module3';
-import { module4 } from './module4';
-import { module5 } from './module5';
-import { module6 } from './module6';
-import { nailTechnicianCertificate } from './certificate';
+import type { Course } from '@/types/course';
+import module1 from './module1';
+import module2 from './module2';
+import module3 from './module3';
+import module4 from './module4';
+import module5 from './module5';
+import module6 from './module6';
+import module7 from './module7';
 
 export const nailTechnicianCourse: Course = {
   id: 'nail-technician',
-  title: 'Professional Nail Technician Certification',
-  description: 'Master professional nail care, design techniques, manicures, pedicures, nail enhancements, salon business skills, and career development',
-  instructor: {
-    name: 'Jessica Taylor',
-    title: 'Master Nail Technician & Salon Owner',
-    bio: 'With over 12 years of experience in nail artistry and salon management, Jessica has trained hundreds of successful nail technicians and owns three award-winning nail salons.',
-    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face'
-  },
-  duration: '30 weeks',
-  level: 'Beginner',
-  category: 'Beauty & Wellness',
-  is_free: false,
-  price: 500,
+  title: 'Master Nail Artistry: Professional Nail Technician Certification',
+  description: 'Comprehensive online program covering nail anatomy, advanced manicure/pedicure techniques, gel and acrylic applications, nail art design, and salon management',
+  thumbnail: '/images/courses/nail-technician.jpg',
+  category: 'Beauty & Personal Care',
+  level: 'Beginner to Intermediate',
+  duration: '10 weeks',
+  is_free: true,
+  price: 0,
   currency: 'ZAR',
-  students: 987,
-  rating: 4.6,
-  thumbnail: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&h=600&fit=crop',
-  learningObjectives: [
-    'Master nail anatomy and identify common nail disorders',
-    'Use professional nail care tools and products safely',
-    'Perform complete manicures and pedicures',
-    'Create stunning nail art and designs',
-    'Apply various nail enhancement techniques including acrylics, gels, and dip powder',
-    'Maintain proper sanitation and safety protocols',
-    'Conduct professional client consultations and maintain detailed records',
-    'Understand salon business operations and marketing strategies',
-    'Build a successful nail technician career with ongoing education',
-    'Develop professionalism and customer service skills'
-  ],
+  students: 0,
+  rating: 0,
+  status: 'published',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  available: true,
   modules: [
     module1,
     module2,
@@ -46,6 +31,22 @@ export const nailTechnicianCourse: Course = {
     module4,
     module5,
     module6,
-    nailTechnicianCertificate
-  ]
+    module7
+  ],
+  learningObjectives: [
+    'Understand nail anatomy and physiology, identifying common nail disorders and maintaining client safety',
+    'Master professional manicure and pedicure techniques, including cuticle care, shaping, and polishing',
+    'Apply gel and acrylic nail enhancements with precision, ensuring durability and aesthetic appeal',
+    'Create intricate nail art designs using tools like brushes, dotting tools, and stamping kits',
+    'Implement hygiene and sanitation protocols compliant with health regulations',
+    'Develop a business plan for a nail salon or freelance practice',
+    'Utilize online tools to practice and showcase designs',
+    'Obtain professional certification recognized in South Africa and internationally'
+  ],
+  instructor: {
+    id: 'nail-technician-instructor',
+    first_name: 'Professional Nail',
+    last_name: 'Artistry Team',
+    email: 'nailartistry@betaskills.com'
+  }
 };

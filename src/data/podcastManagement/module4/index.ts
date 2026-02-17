@@ -1,20 +1,20 @@
-import type { Module } from '@/types/course';
-import { lesson1IntroductionToAudioEditingSoftware } from './lesson1-introduction-to-audio-editing-software';
-import { lesson2BasicEditingTechniques } from './lesson2-basic-editing-techniques';
-import { lesson3AudioEnhancementAndProcessing } from './lesson3-audio-enhancement-and-processing';
-import { lesson4ExportingAndFinalizingAudio } from './lesson4-exporting-and-finalizing-audio';
-import { module4Quiz } from './quiz';
+import { Module } from '@/types/course';
+import { lesson1 } from './lesson1-editing-tools';
+import { lesson2 } from './lesson2-basic-editing';
+import { lesson3 } from './lesson3-music-intros-outros';
+import { lesson4 } from './lesson4-exporting-files';
+import { quiz4 } from './quiz4';
 
 const module4: Module = {
   id: 4,
-  title: '🎧 Module 4: Audio Editing Essentials',
-  description: 'Master the essential skills of audio editing for podcast production. Learn about audio editing software, basic editing techniques, audio enhancement and processing, and exporting and finalizing audio for professional-quality podcast episodes.',
+  title: 'Audio Editing Essentials',
+  description: 'Master the fundamentals of podcast audio editing, from choosing the right tools to exporting professional-quality episodes ready for distribution.',
   lessons: [
-    lesson1IntroductionToAudioEditingSoftware,
-    lesson2BasicEditingTechniques,
-    lesson3AudioEnhancementAndProcessing,
-    lesson4ExportingAndFinalizingAudio,
-    module4Quiz
+    lesson1,
+    lesson2,
+    lesson3,
+    lesson4,
+    quiz4
   ]
 };
 

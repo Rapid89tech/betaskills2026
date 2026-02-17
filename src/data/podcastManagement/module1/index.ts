@@ -1,14 +1,14 @@
 import type { Module } from '@/types/course';
-import { lesson1HistoryAndEvolutionOfPodcasting } from './lesson1-history-and-evolution-of-podcasting';
-import { module1Quiz } from './quiz';
+import { lesson1HistoryAndEvolution } from './lesson1-history-and-evolution';
+import { quiz1 } from './quiz1';
 
 const module1: Module = {
   id: 1,
   title: '🎙️ Module 1: Introduction to Podcasting',
-  description: 'Learn the fundamentals of podcasting, including its history, evolution, types, and impact on modern media. Understand what makes podcasts unique and how they are created and distributed.',
+  description: 'Explore the history, evolution, and fundamentals of podcasting, including podcast formats, creation processes, and the impact of podcasts on media and culture.',
   lessons: [
-    lesson1HistoryAndEvolutionOfPodcasting,
-    module1Quiz
+    lesson1HistoryAndEvolution,
+    quiz1
   ]
 };
 

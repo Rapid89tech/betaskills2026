@@ -20,9 +20,9 @@ export const aiHumanRelationsCourse: Course = {
     email: 'betaskilltraining@gmail.com'
   },
   duration: '36 weeks',
-  level: 'Beginner',
+  level: 'beginner',
   category: 'Technology & Society',
-  is_free: true,
+  is_free: false,
   price: 500,
   currency: 'ZAR',
   students: 1247,
@@ -37,7 +37,7 @@ export const aiHumanRelationsCourse: Course = {
     'Critically interpret societal shifts driven by AI, such as changes in trust, relationships, and cultural norms',
     'Utilize online tools to simulate AI-driven interactions and analyze their impact on human behavior'
   ],
-  status: 'published',
+  status: 'approved',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   available: true,
@@ -53,3 +53,5 @@ export const aiHumanRelationsCourse: Course = {
     module9
   ]
 };
+
+export default aiHumanRelationsCourse;

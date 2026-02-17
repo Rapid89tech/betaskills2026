@@ -9,6 +9,20 @@ import { UnifiedCourse, COURSE_CATEGORIES } from '@/types/unifiedCourse';
 // Raw featured courses data with proper structure
 const rawFeaturedCourses = [
   {
+    id: 'hair-dressing',
+    title: 'Hair Dressing 101',
+    instructor: 'Expert Hair Styling Team',
+    rating: 4.9,
+    students: 3247,
+    duration: '12 weeks',
+    price: 500,
+    image: '/courses-hero-bg.png',
+    level: 'Beginner',
+    description: 'Comprehensive online course covering hair structure, cutting techniques, coloring, styling, and salon management for aspiring hair professionals.',
+    category: 'Beauty',
+    courseId: 'hair-dressing'
+  },
+  {
     id: 'computer-repairs',
     title: 'Computer & Laptop Repairs',
     instructor: 'Beta Skill Tutor',
@@ -20,21 +34,21 @@ const rawFeaturedCourses = [
     level: 'Intermediate',
     description: 'Learn computer repair and maintenance skills for a career in IT support.',
     category: 'ICT',
-    courseId: 'computer-repairs'
+    courseId: 'computer-laptop-repairs'
   },
   {
-    id: 'f9e8d7c6-b5a4-9382-c1d0-e9f8a7b6c5d5',
+    id: 'sound-engineering',
     title: 'Sound Engineering',
-    instructor: 'David Martinez',
+    instructor: 'BetaSkills Audio Team',
     rating: 4.8,
     students: 892,
-    duration: '12 weeks',
+    duration: '40 hours',
     price: 290,
     image: '/courses-hero-bg.png',
-    level: 'Intermediate',
-    description: 'Master the art of sound engineering and audio production.',
+    level: 'Beginner',
+    description: 'Sonic Mastery: Comprehensive Sound Engineering Online course covering sound theory, recording techniques, mixing, mastering, and post-production for careers in music production, film audio, podcasting, and live sound engineering.',
     category: 'Film & Broadcasting',
-    courseId: 'f9e8d7c6-b5a4-9382-c1d0-e9f8a7b6c5d5'
+    courseId: 'sound-engineering'
   },
   {
     id: 'entrepreneurship-final',
@@ -49,6 +63,20 @@ const rawFeaturedCourses = [
     description: 'Start your own business with proven entrepreneurial strategies.',
     category: 'Business',
     courseId: 'entrepreneurship-final'
+  },
+  {
+    id: 'podcast-management',
+    title: 'Podcast Management',
+    instructor: 'Sarah Johnson',
+    rating: 4.6,
+    students: 734,
+    duration: '10 weeks',
+    price: 290,
+    image: '/courses-hero-bg.png',
+    level: 'Beginner',
+    description: 'Create and manage successful podcasts from concept to distribution.',
+    category: 'Film & Broadcasting',
+    courseId: 'podcast-management'
   },
   {
     id: 'podcast-management',
@@ -161,6 +189,62 @@ const rawFeaturedCourses = [
     description: 'Prophetic Ministry Training Course: Hearing, Speaking, and Living God\'s Voice. This course is designed for believers who are called to operate in the office of a prophet or function in prophetic ministry.',
     category: 'Religion',
     courseId: 'prophet'
+  },
+  {
+    id: 'nail-technician',
+    title: 'Master Nail Artistry: Professional Nail Technician Certification',
+    instructor: 'Professional Nail Artistry Team',
+    rating: 4.9,
+    students: 0,
+    duration: '10 weeks',
+    price: 0,
+    image: '/courses-hero-bg.png',
+    level: 'Beginner',
+    description: 'Comprehensive online program covering nail anatomy, advanced manicure/pedicure techniques, gel and acrylic applications, nail art design, and salon management',
+    category: 'Beauty',
+    courseId: 'nail-technician'
+  },
+  {
+    id: 'selling-online',
+    title: 'Online Selling: From Setup to Scale',
+    instructor: 'Online Business Expert Team',
+    rating: 4.8,
+    students: 0,
+    duration: '12 weeks',
+    price: 290,
+    image: '/courses-hero-bg.png',
+    level: 'Beginner',
+    description: 'Learn how to sell products or services online successfully. Master choosing what to sell, setting up stores, attracting customers, managing fulfillment, and scaling profitably using data and marketing strategies.',
+    category: 'Business',
+    courseId: 'selling-online'
+  },
+  {
+    id: 'online-trading',
+    title: 'Online Trading – Financial Markets',
+    instructor: 'Financial Markets Expert Team',
+    rating: 4.9,
+    students: 0,
+    duration: '8-12 weeks',
+    price: 290,
+    image: '/courses-hero-bg.png',
+    level: 'Beginner',
+    description: 'This course provides a structured foundation in financial markets and online trading. Learners will understand how markets function, how to analyse assets, manage risk, and execute trades using modern trading platforms. The course balances theory, market mechanics, and practical trading application.',
+    category: 'Business',
+    courseId: 'online-trading'
+  },
+  {
+    id: 'ai-cartoon-movies',
+    title: 'AI-Assisted Cartoon Movie Making',
+    instructor: 'Creative AI Production Team',
+    rating: 4.9,
+    students: 0,
+    duration: '8-10 weeks',
+    price: 290,
+    image: '/courses-hero-bg.png',
+    level: 'Intermediate',
+    description: 'Master the art of creating animated films using AI tools. Learn how to leverage artificial intelligence for scriptwriting, character design, animation, voice acting, editing, and distribution to produce professional-quality cartoon movies efficiently.',
+    category: 'Film & Broadcasting',
+    courseId: 'ai-cartoon-movies'
   },
 
 

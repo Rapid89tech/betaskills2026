@@ -389,6 +389,23 @@ export class DataManager {
           conflict_resolution: 'local'
         });
       } else {
+        // Status priority: if either side is approved, always prefer approved.
+        // This prevents locally cached "pending" from overriding a remotely approved enrollment.
+        const localStatus = String(localEnrollment.status || '').toLowerCase();
+        const remoteStatus = String(remoteEnrollment.status || '').toLowerCase();
+        if (localStatus === 'approved' || remoteStatus === 'approved') {
+          const approvedEnrollment = localStatus === 'approved' ? localEnrollment : remoteEnrollment;
+          const otherEnrollment = localStatus === 'approved' ? remoteEnrollment : localEnrollment;
+          merged.set(approvedEnrollment.id, {
+            ...approvedEnrollment,
+            // Preserve best progress/metadata if present
+            progress: Math.max(Number(approvedEnrollment.progress || 0), Number(otherEnrollment.progress || 0)),
+            sync_version: Math.max(Number(approvedEnrollment.sync_version || 0), Number(otherEnrollment.sync_version || 0)),
+            conflict_resolution: localStatus === 'approved' ? 'local' : 'remote'
+          });
+          return;
+        }
+
         // Conflict resolution using timestamp-based last-write-wins
         const localTimestamp = new Date(localEnrollment.updated_at || localEnrollment.enrolled_at);
         const remoteTimestamp = new Date(remoteEnrollment.updated_at || remoteEnrollment.enrolled_at);

@@ -563,6 +563,7 @@ class CourseContentManager {
       .single();
 
     if (error || !data) {
+      logger.error('❌ Failed to load course module:', courseId, error);
       throw new Error(`Course not found: ${courseId}`);
     }
 
@@ -575,7 +576,8 @@ class CourseContentManager {
   private async loadCourseModule(courseId: string): Promise<Course | null> {
     const courseModuleMap: Record<string, () => Promise<any>> = {
       'entrepreneurship-final': () => import('@/data/entrepreneurshipFinalCourse'),
-      'ai-human-relations': () => import('@/data/aiAssistedProgrammingCourse'),
+      'ai-human-relations': () => import('@/data/aiHumanRelations/index'),
+      'ai-and-human-relations': () => import('@/data/aiHumanRelations/index'),
       'roofing101': () => import('@/data/roofingCourse'),
       'plumbing101': () => import('@/data/plumbing101'),
       'tiling-101': () => import('@/data/tiling101'),
@@ -593,7 +595,7 @@ class CourseContentManager {
 
     try {
       const module = await loader();
-      return module.default || module.course || null;
+      return module.default || module.aiHumanRelationsCourse || module.course || null;
     } catch (error) {
       logger.error('❌ Failed to load course module:', courseId, error);
       return null;

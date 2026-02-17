@@ -1,13 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson7_1 } from './lesson7_1';
-import { quiz7 } from './quiz7';
+import type { Module } from '@/types/course';
+import { lesson1HairStylingFinishing } from './lesson1-hair-styling-finishing';
+import { module7Quiz } from './quiz7';
 
-export const module7: Module = {
+const module7: Module = {
   id: 7,
-  title: 'Hair Styling and Finishing',
-  description: 'Master blow-drying and heat styling techniques for volume and smoothness, including proper tool usage and heat protection',
+  title: '💨 Module 7: Hair Styling and Finishing',
+  description: 'Master blow-drying, heat styling, diffusers, round brushes, and heat protection for professional finishing',
   lessons: [
-    lesson7_1,
-    quiz7
+    lesson1HairStylingFinishing,
+    module7Quiz
   ]
-}; 
+};
+
+export default module7;

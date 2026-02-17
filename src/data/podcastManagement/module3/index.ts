@@ -1,20 +1,14 @@
 import type { Module } from '@/types/course';
-import { lesson1EssentialRecordingEquipment } from './lesson1-essential-recording-equipment';
-import { lesson2RecordingTechniquesAndBestPractices } from './lesson2-recording-techniques-and-best-practices';
-import { lesson3RemoteRecordingSolutions } from './lesson3-remote-recording-solutions';
-import { lesson4ProductionWorkflowAndFileManagement } from './lesson4-production-workflow-and-file-management';
-import { module3Quiz } from './quiz';
+import { lesson1RecordingTools } from './lesson1-recording-tools';
+import { quiz3 } from './quiz3';
 
 const module3: Module = {
   id: 3,
   title: '🎙️ Module 3: Recording & Production Workflow',
-  description: 'Master the technical aspects of podcast recording and production workflow. Learn about essential recording equipment, professional recording techniques, remote recording solutions, and efficient production workflows and file management.',
+  description: 'Master the technical aspects of podcast production, from selecting the right recording tools and software to understanding audio interfaces, microphones, and remote recording platforms for professional-quality audio.',
   lessons: [
-    lesson1EssentialRecordingEquipment,
-    lesson2RecordingTechniquesAndBestPractices,
-    lesson3RemoteRecordingSolutions,
-    lesson4ProductionWorkflowAndFileManagement,
-    module3Quiz
+    lesson1RecordingTools,
+    quiz3
   ]
 };
 

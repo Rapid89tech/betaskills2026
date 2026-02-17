@@ -1,20 +1,16 @@
 import type { Module } from '@/types/course';
-import { lesson1DevelopingShowConceptsAndFormats } from './lesson1-developing-show-concepts-and-formats';
-import { lesson2PlanningContentCalendars } from './lesson2-planning-content-calendars';
-import { lesson3IdentifyingAndResearchingGuests } from './lesson3-identifying-and-researching-guests';
-import { lesson4ScriptWritingAndShowNotes } from './lesson4-script-writing-and-show-notes';
-import { module2Quiz } from './quiz';
+import { lesson1ShowConcepts } from './lesson1-show-concepts';
+import { lesson2ContentCalendars } from './lesson2-content-calendars';
+import { quiz2 } from './quiz2';
 
 const module2: Module = {
   id: 2,
-  title: '📋 Module 2: Pre-Production Planning',
-  description: 'Master the essential pre-production skills for podcasting, including concept development, content planning, guest management, and script writing. Learn how to create compelling show concepts, build content calendars, identify and research guests, and write effective scripts and show notes.',
+  title: '🎧 Module 2: Planning and Content Strategy',
+  description: 'Develop strong podcast show concepts, formats, and content plans using calendars and repeatable production workflows.',
   lessons: [
-    lesson1DevelopingShowConceptsAndFormats,
-    lesson2PlanningContentCalendars,
-    lesson3IdentifyingAndResearchingGuests,
-    lesson4ScriptWritingAndShowNotes,
-    module2Quiz
+    lesson1ShowConcepts,
+    lesson2ContentCalendars,
+    quiz2
   ]
 };
 

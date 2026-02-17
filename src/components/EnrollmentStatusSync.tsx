@@ -84,6 +84,7 @@ export const EnrollmentStatusSync: React.FC = () => {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key && (
         event.key === 'enrollments' ||
+        event.key === 'enrollment-status-refresh' ||
         event.key.startsWith('user-enrollments-') ||
         event.key.startsWith('course-progress-')
       )) {

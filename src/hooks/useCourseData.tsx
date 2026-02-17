@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Course, Lesson, Module } from '@/types/course';
 import { courseLoadingMonitor } from '@/services/CourseLoadingPerformanceMonitor';
+import { resolveCourseId } from '@/utils/resolveCourseId';
 
 // Static imports - more reliable for production
 import doggrooming101 from '@/data/doggrooming101';
@@ -19,6 +20,16 @@ import cellphoneRepairs101 from '@/data/cellphoneRepairs101';
 import prophet from '@/data/prophet';
 import cybersecurity101 from '@/data/cybersecurity101';
 import entrepreneurshipFinalCourse from '@/data/entrepreneurshipFinalCourse';
+import { aiHumanRelationsCourse } from '@/data/aiHumanRelations/index';
+import { petrolMechanicCourse } from '@/data/petrolMechanic/index';
+import { dieselMechanicCourse } from '@/data/dieselMechanic/index';
+import { podcastManagementCourse } from '@/data/podcastManagement/index';
+import { computerLaptopRepairsCourse } from '@/data/computerLaptopRepairs/index';
+import { hairDressingCourse } from '@/data/hairDressing/index';
+import { nailTechnicianCourse } from '@/data/nailTechnician/index';
+import motorMechanicDieselCourse from '@/data/motorMechanicDiesel/index';
+import { aiCartoonMoviesCourse } from '@/data/aiCartoonMovies/index';
+import { soundEngineeringCourse } from '@/data/soundEngineering/index';
 
 interface CourseLoadResult {
   course: Course | null;
@@ -36,14 +47,16 @@ interface CourseValidation {
 
 export const useCourseData = (courseId?: string) => {
   const params = useParams<{ id: string; courseId: string }>();
-  const idFromParams = courseId || params.courseId || params.id;
+  const rawIdFromParams = courseId || params.courseId || params.id;
+  const idFromParams = resolveCourseId(rawIdFromParams);
   
   // Debug logging
   console.log('🔧 useCourseData init:', { 
     passedCourseId: courseId, 
     paramsCourseId: params.courseId, 
     paramsId: params.id,
-    resolved: idFromParams 
+    rawResolved: rawIdFromParams,
+    resolved: idFromParams
   });
   
   const [course, setCourse] = useState<Course | null>(null);
@@ -223,7 +236,17 @@ export const useCourseData = (courseId?: string) => {
         'cellphone-repairs-101': cellphoneRepairs101,
         'prophet': prophet,
         'cybersecurity101': cybersecurity101,
-        'entrepreneurship-final': entrepreneurshipFinalCourse
+        'entrepreneurship-final': entrepreneurshipFinalCourse,
+        'ai-human-relations': aiHumanRelationsCourse,
+        'petrol-mechanic': petrolMechanicCourse,
+        'diesel-mechanic': dieselMechanicCourse,
+        'motor-mechanic-diesel': motorMechanicDieselCourse,
+        'podcast-management': podcastManagementCourse,
+        'computer-laptop-repairs': computerLaptopRepairsCourse,
+        'hair-dressing': hairDressingCourse,
+        'nail-technician': nailTechnicianCourse,
+        'ai-cartoon-movies': aiCartoonMoviesCourse,
+        'sound-engineering': soundEngineeringCourse
       };
       
       console.log('📚 Available courses in map:', Object.keys(courseMap));
@@ -235,7 +258,11 @@ export const useCourseData = (courseId?: string) => {
       try {
         // Get featured course data for fallback
         const { featuredCourses } = await import('@/data/featuredCourses');
-        featuredCourseData = featuredCourses.find(c => c.id === idFromParams || c.courseId === idFromParams);
+        featuredCourseData = featuredCourses.find(c =>
+          c.id === idFromParams ||
+          c.courseId === idFromParams ||
+          (!!rawIdFromParams && (c.id === rawIdFromParams || c.courseId === rawIdFromParams))
+        );
       } catch (error) {
         console.warn('Could not load featured courses:', error);
       }

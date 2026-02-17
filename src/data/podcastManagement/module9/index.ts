@@ -1,20 +1,18 @@
-import type { Module } from '@/types/course';
-import { lesson1ProjectManagementTools } from './lesson1-project-management-tools';
-import { lesson2WorkflowAutomation } from './lesson2-workflow-automation';
-import { lesson3GuestManagement } from './lesson3-guest-management';
-import { lesson4SOPsAndClientReporting } from './lesson4-sops-and-client-reporting';
-import { module9Quiz } from './quiz';
+import { Module } from '@/types/course';
+import { lesson1 } from './lesson1-project-management';
+import { lesson2 } from './lesson2-automation-guests';
+import { lesson3 } from './lesson3-sops-reporting';
+import { quiz9 } from './quiz9';
 
 const module9: Module = {
   id: 9,
-  title: '👥 Module 9: Project and Team Management',
-  description: 'Master project and team management for podcast success. Learn how to use project management tools, implement workflow automation, manage guests effectively, and create SOPs and client reporting systems for professional podcast management.',
+  title: 'Project and Team Management',
+  description: 'Master project management tools, workflow automation, guest management, SOPs, and client reporting to streamline podcast production and ensure consistent, professional results.',
   lessons: [
-    lesson1ProjectManagementTools,
-    lesson2WorkflowAutomation,
-    lesson3GuestManagement,
-    lesson4SOPsAndClientReporting,
-    module9Quiz
+    lesson1,
+    lesson2,
+    lesson3,
+    quiz9
   ]
 };
 

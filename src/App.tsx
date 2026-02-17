@@ -104,7 +104,8 @@ const SimpleLayout = ({ children }: { children: React.ReactNode }) => (
 // Safe lazy loading with fallback
 const safeLazyImport = (importFn: () => Promise<any>) => {
   return lazy(() =>
-    importFn().catch(() => {
+    importFn().catch((error) => {
+      console.error('Lazy import failed:', error);
       // Fallback component if import fails
       return {
         default: () => (
@@ -112,6 +113,9 @@ const safeLazyImport = (importFn: () => Promise<any>) => {
             <div className="text-center">
               <h2 className="text-xl font-semibold mb-4">Page Loading Error</h2>
               <p className="text-gray-600 mb-4">Unable to load this page.</p>
+              <p className="text-gray-500 mb-4 text-sm">
+                {error instanceof Error ? error.message : String(error)}
+              </p>
               <button
                 onClick={() => window.location.reload()}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"

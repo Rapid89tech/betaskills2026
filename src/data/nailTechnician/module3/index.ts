@@ -1,23 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson3_1 } from './lesson3_1';
-import { lesson3_2 } from './lesson3_2';
-import { lesson3_3 } from './lesson3_3';
-import { quiz3_1 } from './quiz3_1';
+import type { Module } from '@/types/course';
+import { lesson1GelAcrylicNails } from './lesson1-gel-acrylic-nails';
+import { module3Quiz } from './quiz3';
 
-export const module3: Module = {
+const module3: Module = {
   id: 3,
-  title: 'Nail Enhancements',
-  description: 'Master acrylic, gel, and dip powder nail enhancement techniques for creating durable, beautiful nail extensions and overlays.',
+  title: '💎 Module 3: Gel and Acrylic Nail Applications',
+  description: 'Learn professional gel and acrylic nail enhancement techniques, including application, shaping, troubleshooting, and safety practices',
   lessons: [
-    lesson3_1,
-    lesson3_2,
-    lesson3_3,
-    {
-      id: quiz3_1.id,
-      title: quiz3_1.title,
-      duration: '0:00',
-      type: 'quiz',
-      content: { questions: quiz3_1.questions }
-    }
+    lesson1GelAcrylicNails,
+    module3Quiz
   ]
-}; 
+};
+
+export default module3;

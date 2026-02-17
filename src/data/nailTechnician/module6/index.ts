@@ -1,23 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson6_1 } from './lesson6_1';
-import { lesson6_2 } from './lesson6_2';
-import { lesson6_3 } from './lesson6_3';
-import { quiz6 } from './quiz6';
+import type { Module } from '@/types/course';
+import { lesson1BusinessSalonManagement } from './lesson1-business-salon-management';
+import { module6Quiz } from './quiz6';
 
-export const module6: Module = {
+const module6: Module = {
   id: 6,
-  title: 'Building a Career as a Nail Technician',
-  description: 'Learn professional salon management, marketing strategies, and how to stay current with industry trends to build a successful nail technician career',
+  title: '💼 Module 6: Building Your Nail Business',
+  description: 'Learn business fundamentals, marketing strategies, pricing, client management, and salon operations to build a successful nail career',
   lessons: [
-    lesson6_1,
-    lesson6_2,
-    lesson6_3,
-    {
-      id: quiz6.id,
-      title: quiz6.title,
-      duration: '0:00',
-      type: 'quiz',
-      content: { questions: quiz6.questions }
-    }
+    lesson1BusinessSalonManagement,
+    module6Quiz
   ]
-}; 
+};
+
+export default module6;

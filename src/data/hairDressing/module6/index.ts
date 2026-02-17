@@ -1,13 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson6_1 } from './lesson6_1';
-import { quiz6 } from './quiz6';
+import type { Module } from '@/types/course';
+import { lesson1MensHaircutsGrooming } from './lesson1-mens-haircuts-grooming';
+import { module6Quiz } from './quiz6';
 
-export const module6: Module = {
+const module6: Module = {
   id: 6,
-  title: 'Men\'s Haircuts and Grooming',
-  description: 'Master men\'s haircut styles including fades, tapers, beard shaping, and professional clipper techniques',
+  title: '💈 Module 6: Men\'s Haircuts and Grooming',
+  description: 'Master fades, tapers, beard shaping, trimming techniques, and professional clipper work for men\'s grooming',
   lessons: [
-    lesson6_1,
-    quiz6
+    lesson1MensHaircutsGrooming,
+    module6Quiz
   ]
-}; 
+};
+
+export default module6;

@@ -1,20 +1,18 @@
-import type { Module } from '@/types/course';
-import { lesson1DevelopingAMarketingStrategy } from './lesson1-developing-a-marketing-strategy';
-import { lesson2SocialMediaPromotion } from './lesson2-social-media-promotion';
-import { lesson3EmailMarketingAndNewsletters } from './lesson3-email-marketing-and-newsletters';
-import { lesson4CollaborationsAndPartnerships } from './lesson4-collaborations-and-partnerships';
-import { module6Quiz } from './quiz';
+import { Module } from '@/types/course';
+import { lesson1 } from './lesson1-podcast-branding';
+import { lesson2 } from './lesson2-titles-descriptions';
+import { lesson3 } from './lesson3-promotion-strategies';
+import { quiz6 } from './quiz6';
 
 const module6: Module = {
   id: 6,
-  title: '📢 Module 6: Marketing and Promotion',
-  description: 'Master the essential marketing and promotion strategies for podcast growth and audience engagement. Learn how to develop comprehensive marketing strategies, leverage social media platforms, build email marketing campaigns, and create successful collaborations and partnerships.',
+  title: 'Marketing and Promotion',
+  description: 'Master podcast branding, craft compelling titles and descriptions, and learn effective promotion strategies through social media, newsletters, collaborations, and community building.',
   lessons: [
-    lesson1DevelopingAMarketingStrategy,
-    lesson2SocialMediaPromotion,
-    lesson3EmailMarketingAndNewsletters,
-    lesson4CollaborationsAndPartnerships,
-    module6Quiz
+    lesson1,
+    lesson2,
+    lesson3,
+    quiz6
   ]
 };
 

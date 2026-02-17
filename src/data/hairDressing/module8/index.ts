@@ -1,13 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson8_1 } from './lesson8_1';
-import { quiz8 } from './quiz8';
+import type { Module } from '@/types/course';
+import { lesson1BraidingUpdos } from './lesson1-braiding-updos';
+import { module8Quiz } from './quiz8';
 
-export const module8: Module = {
+const module8: Module = {
   id: 8,
-  title: 'Braiding and Updos',
-  description: 'Master essential braiding techniques including French, Dutch, and fishtail braids, plus elegant bridal and event updos with proper securing methods',
+  title: '💐 Module 8: Braiding and Updos',
+  description: 'Master French, Dutch, and fishtail braids, create elegant bridal and event updos, and learn to secure styles with pins and accessories',
   lessons: [
-    lesson8_1,
-    quiz8
+    lesson1BraidingUpdos,
+    module8Quiz
   ]
-}; 
+};
+
+export default module8;

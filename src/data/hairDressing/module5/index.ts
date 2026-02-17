@@ -1,13 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson5_1 } from './lesson5_1';
-import { quiz5 } from './quiz5';
+import type { Module } from '@/types/course';
+import { lesson1AdvancedCuttingTechniques } from './lesson1-advanced-cutting-techniques';
+import { module5Quiz } from './quiz5';
 
-export const module5: Module = {
+const module5: Module = {
   id: 5,
-  title: 'Advanced Hair Cutting Techniques',
-  description: 'Master advanced cutting techniques including texturizing, thinning, razor cutting, and precision/freehand cutting methods',
+  title: '✂️ Module 5: Advanced Hair Cutting Techniques',
+  description: 'Master texturizing, thinning, razor cutting, precision cutting, and freehand techniques for professional results',
   lessons: [
-    lesson5_1,
-    quiz5
+    lesson1AdvancedCuttingTechniques,
+    module5Quiz
   ]
-}; 
+};
+
+export default module5;

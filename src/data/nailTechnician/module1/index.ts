@@ -1,21 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson1_1 } from './lesson1_1';
-import { lesson1_2 } from './lesson1_2';
-import { quiz1 } from './quiz1';
+import type { Module } from '@/types/course';
+import { lesson1NailAnatomy } from './lesson1-nail-anatomy';
+import { module1Quiz } from './quiz1';
 
-export const module1: Module = {
+const module1: Module = {
   id: 1,
-  title: 'Introduction to Nail Care',
-  description: 'Learn the fundamentals of nail anatomy, common nail conditions, essential tools and products, and proper sanitation procedures.',
+  title: '💅 Module 1: Introduction to Nail Care',
+  description: 'Learn nail anatomy, structure, common nail conditions, and essential nail care tools and products',
   lessons: [
-    lesson1_1,
-    lesson1_2,
-    {
-      id: quiz1.id,
-      title: quiz1.title,
-      duration: '0:00',
-      type: 'quiz',
-      content: { questions: quiz1.questions }
-    }
+    lesson1NailAnatomy,
+    module1Quiz
   ]
-}; 
+};
+
+export default module1;

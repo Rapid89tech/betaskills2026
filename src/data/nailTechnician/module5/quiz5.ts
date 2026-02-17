@@ -1,164 +1,122 @@
-export const quiz5 = {
-  id: 26,
-  title: 'Module 5 Quiz: Sanitation, Safety, and Client Consultation',
-  questions: [
-    {
-      question: 'Why is it important to maintain a clean work environment?',
-      options: [
-        'It reduces service time.',
-        'It prevents cross-contamination and protects clients\' health.',
-        'It eliminates the need for personal protective equipment.'
-      ],
-      correct: 1,
-      explanation: 'Maintaining a clean work environment is crucial for preventing cross-contamination and protecting both client and technician health.'
-    },
-    {
-      question: 'Which of the following is the most thorough method of cleaning tools?',
-      options: [
-        'Washing with soap and water',
-        'Wiping down with alcohol wipes',
-        'Sterilization using an autoclave'
-      ],
-      correct: 2,
-      explanation: 'Sterilization using an autoclave provides the most thorough cleaning by eliminating all forms of microbial life, including spores.'
-    },
-    {
-      question: 'What is the difference between sanitization and disinfection?',
-      options: [
-        'Sanitization removes all microbial life, while disinfection reduces debris.',
-        'Disinfection kills most bacteria and viruses, while sanitization removes visible debris and reduces bacteria.',
-        'Sanitization is only used on tools, while disinfection is only used on surfaces.'
-      ],
-      correct: 1,
-      explanation: 'Disinfection uses chemical agents to kill most bacteria and viruses, while sanitization removes visible debris and reduces bacterial count.'
-    },
-    {
-      question: 'Which of these items should be replaced after every client?',
-      options: [
-        'Reusable metal tools',
-        'Disposable nail files and buffers',
-        'Nail clippers'
-      ],
-      correct: 1,
-      explanation: 'Disposable nail files and buffers should be replaced after every client to prevent cross-contamination.'
-    },
-    {
-      question: 'What is the purpose of personal protective equipment (PPE) in the salon?',
-      options: [
-        'To reduce the time needed for cleaning.',
-        'To protect the technician and client from pathogens and chemical exposure.',
-        'To avoid using disinfectants.'
-      ],
-      correct: 1,
-      explanation: 'PPE protects both technicians and clients from exposure to pathogens and harmful chemicals during nail services.'
-    },
-    {
-      question: 'What type of ventilation system is recommended near workstations?',
-      options: [
-        'General air conditioning',
-        'Local exhaust ventilation (LEV)',
-        'Floor fans'
-      ],
-      correct: 1,
-      explanation: 'Local exhaust ventilation (LEV) directly captures and removes fumes and dust at the source, providing the most effective protection.'
-    },
-    {
-      question: 'How often should you clean and disinfect your workstation?',
-      options: [
-        'Once a day',
-        'Once a week',
-        'After every client'
-      ],
-      correct: 2,
-      explanation: 'Workstations should be cleaned and disinfected after every client to prevent cross-contamination.'
-    },
-    {
-      question: 'What is the primary goal of conducting a client consultation?',
-      options: [
-        'To sell the most expensive products.',
-        'To understand the client\'s preferences and assess their nail health.',
-        'To reduce service time.',
-        'To document the products available in the salon.'
-      ],
-      correct: 1,
-      explanation: 'The primary goal of a client consultation is to understand their preferences and assess nail health to provide appropriate services.'
-    },
-    {
-      question: 'What should you always examine during a client consultation?',
-      options: [
-        'The client\'s shoes.',
-        'The condition of the natural nails.',
-        'The client\'s choice of jewelry.',
-        'The current salon\'s stock of nail polish.'
-      ],
-      correct: 1,
-      explanation: 'Examining the condition of natural nails is essential to assess health and determine appropriate treatments.'
-    },
-    {
-      question: 'Why is it important to ask clients about past product reactions?',
-      options: [
-        'To find out if they have used high-end products before.',
-        'To ensure that any products used won\'t cause irritation or allergies.',
-        'To encourage them to try a different brand of polish.',
-        'To speed up the application process.'
-      ],
-      correct: 1,
-      explanation: 'Asking about past reactions helps prevent allergic reactions and ensures client safety during services.'
-    },
-    {
-      question: 'What key information should be included in a client\'s record?',
-      options: [
-        'Their favorite holiday destination.',
-        'Services performed, products used, and preferred nail styles.',
-        'The names of other salons they\'ve visited.',
-        'The last time they purchased a nail file.'
-      ],
-      correct: 1,
-      explanation: 'Client records should include service history, product usage, and preferences to ensure consistent quality service.'
-    },
-    {
-      question: 'Why is it beneficial to keep detailed client records?',
-      options: [
-        'It reduces the time spent on consultations.',
-        'It helps ensure consistent results and improves customer service.',
-        'It allows the salon to charge higher fees.',
-        'It eliminates the need for follow-up appointments.'
-      ],
-      correct: 1,
-      explanation: 'Detailed records ensure consistent service quality and help build better customer relationships.'
-    },
-    {
-      question: 'What is the best way to handle a client\'s concern about a service?',
-      options: [
-        'Ignore the concern and hope it resolves on its own.',
-        'Offer to adjust the service and listen to their feedback.',
-        'Blame the client for improper nail care.',
-        'Suggest they visit another technician.'
-      ],
-      correct: 1,
-      explanation: 'Listening to concerns and offering solutions demonstrates professionalism and builds client trust.'
-    },
-    {
-      question: 'How often should you update a client\'s record?',
-      options: [
-        'Once every six months.',
-        'Only if the client complains.',
-        'After every appointment.',
-        'Whenever the client tries a new polish color.'
-      ],
-      correct: 2,
-      explanation: 'Client records should be updated after every appointment to maintain accurate, current information.'
-    },
-    {
-      question: 'Why is it important to keep client records secure and private?',
-      options: [
-        'To prevent competitors from accessing client information.',
-        'To comply with data protection regulations and maintain trust.',
-        'To ensure the records can\'t be used by anyone else in the salon.',
-        'To keep the salon\'s product information confidential.'
-      ],
-      correct: 1,
-      explanation: 'Protecting client privacy complies with legal requirements and maintains professional trust.'
-    }
-  ]
-}; 
+import type { Quiz } from '@/types/course';
+
+export const module5Quiz: Quiz = {
+  id: 5,
+  title: 'Module 5 Quiz: Hygiene, Sanitation, and Safety',
+  duration: '20 min',
+  type: 'quiz',
+  content: {
+    questions: [
+      {
+        question: 'What is the difference between disinfection and sterilization?',
+        options: [
+          'There is no difference',
+          'Disinfection kills most microorganisms; sterilization kills all microorganisms',
+          'Sterilization is faster than disinfection',
+          'Disinfection is only for surfaces'
+        ],
+        correct: 1,
+        explanation: 'Disinfection kills most (but not all) microorganisms, while sterilization kills all microorganisms including bacterial spores.'
+      },
+      {
+        question: 'What causes "greenies" (Pseudomonas) under nail enhancements?',
+        options: [
+          'Using green nail polish',
+          'Bacterial infection in moist environments',
+          'Fungal infection from dirty tools',
+          'Allergic reaction to gel'
+        ],
+        correct: 1,
+        explanation: 'Pseudomonas is a bacterial infection that causes green discoloration and thrives in moist environments between the natural nail and enhancement.'
+      },
+      {
+        question: 'How long should tools be immersed in Barbicide for proper disinfection?',
+        options: [
+          '2 minutes',
+          '5 minutes',
+          '10 minutes',
+          '30 minutes'
+        ],
+        correct: 2,
+        explanation: 'Tools should be fully submerged in Barbicide for the manufacturer\'s recommended time, which is typically 10 minutes.'
+      },
+      {
+        question: 'Which type of glove is best for nail services due to chemical resistance?',
+        options: [
+          'Latex gloves',
+          'Vinyl gloves',
+          'Nitrile gloves',
+          'Cotton gloves'
+        ],
+        correct: 2,
+        explanation: 'Nitrile gloves are chemical-resistant, latex-free, and ideal for nail services involving chemicals like acrylics and gels.'
+      },
+      {
+        question: 'What should you do if a client has a visible fungal infection?',
+        options: [
+          'Apply enhancement to cover it',
+          'Treat it with antifungal cream',
+          'Refuse service and refer to a doctor',
+          'Disinfect the area and proceed'
+        ],
+        correct: 2,
+        explanation: 'Never apply enhancements over infected nails. Politely refuse service and refer the client to a doctor for treatment.'
+      },
+      {
+        question: 'Which items should NEVER be reused between clients?',
+        options: [
+          'Metal nail files',
+          'Cuticle nippers',
+          'Orangewood sticks and pumice stones',
+          'Nail brushes'
+        ],
+        correct: 2,
+        explanation: 'Single-use items like orangewood sticks, pumice stones, disposable files, and toe separators should never be reused.'
+      },
+      {
+        question: 'What is the minimum alcohol concentration needed for effective disinfection?',
+        options: [
+          '50%',
+          '60%',
+          '70%',
+          '90%'
+        ],
+        correct: 2,
+        explanation: 'Alcohol-based disinfectants should be at least 70% isopropyl alcohol for effective disinfection.'
+      },
+      {
+        question: 'When should you wear a dust mask during nail services?',
+        options: [
+          'Only when sick',
+          'When filing acrylic or gel to avoid inhaling dust',
+          'Never necessary',
+          'Only during pedicures'
+        ],
+        correct: 1,
+        explanation: 'Dust masks (N95) should be worn when filing acrylic or gel to avoid inhaling airborne particles and dust.'
+      },
+      {
+        question: 'How often should pedicure spa disinfectant solution be replaced?',
+        options: [
+          'Once a week',
+          'Once a month',
+          'Daily or when visibly contaminated',
+          'Never, just add more'
+        ],
+        correct: 2,
+        explanation: 'Disinfectant solutions like Barbicide should be replaced daily or when visibly contaminated to maintain effectiveness.'
+      },
+      {
+        question: 'What is paronychia?',
+        options: [
+          'A type of nail polish',
+          'Infection of the skin around the nail',
+          'A nail shaping technique',
+          'A type of nail enhancement'
+        ],
+        correct: 1,
+        explanation: 'Paronychia is an infection of the skin around the nail, causing redness, swelling, and pus, often from bacteria entering through damaged cuticles.'
+      }
+    ]
+  }
+};

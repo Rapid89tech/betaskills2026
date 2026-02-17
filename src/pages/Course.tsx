@@ -15,18 +15,47 @@ import { unifiedEnrollmentValidator } from '@/services/UnifiedEnrollmentValidato
 import { CourseContentValidator, type CourseValidationResult } from '@/services/CourseContentValidator';
 import { Loader2, AlertCircle, RefreshCw, Clock, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { resolveCourseId } from '@/utils/resolveCourseId';
 // Import mobile styles for responsive layout
 import '@/styles/mobile.css';
 
 // Lazy load heavy components
-const CourseEnrollmentView = lazy(() => import('@/components/course/CourseEnrollmentView'));
-const CoursePlayerView = lazy(() => import('@/components/course/CoursePlayerView'));
+const safeLazyCourseView = (importFn: () => Promise<any>) =>
+  lazy(() =>
+    importFn().catch((error) => {
+      console.error('Course view lazy import failed:', error);
+      return {
+        default: () => (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50 mobile-px">
+            <Card className="max-w-md w-full">
+              <CardHeader className="mobile-p">
+                <CardTitle className="text-center text-red-600 mobile-text-h3">Page Loading Error</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center space-y-4 mobile-p">
+                <p className="text-gray-600 mobile-text-body">Unable to load this page.</p>
+                <p className="text-gray-500 text-sm break-words">
+                  {error instanceof Error ? error.message : String(error)}
+                </p>
+                <Button onClick={() => window.location.reload()} className="w-full touch-target-btn">
+                  Refresh Page
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )
+      };
+    })
+  );
+
+const CourseEnrollmentView = safeLazyCourseView(() => import('@/components/course/CourseEnrollmentView'));
+const CoursePlayerView = safeLazyCourseView(() => import('@/components/course/CoursePlayerView'));
 
 const Course = () => {
   // ALL HOOKS MUST BE CALLED AT THE TOP - NEVER CONDITIONALLY!
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { courseId } = useParams<{ courseId: string }>();
+  const { courseId: rawCourseId } = useParams<{ courseId: string }>();
+  const courseId = resolveCourseId(rawCourseId);
   const { toast } = useToast();
   
   // Core course data loading - pass courseId explicitly

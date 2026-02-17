@@ -15,6 +15,7 @@
 
 import { logger } from '@/utils/logger';
 import { EnrollmentData } from '@/utils/enrollmentPersistence';
+import { getCourseIdAliases, resolveCourseId } from '@/utils/resolveCourseId';
 
 export interface EnrollmentValidationResult {
   isValid: boolean;
@@ -203,57 +204,74 @@ export class UnifiedEnrollmentValidator {
   ): Promise<EnrollmentSource[]> {
     const sources: EnrollmentSource[] = [];
 
+    const courseIdAliases = getCourseIdAliases(courseId);
+    const uniqueCourseIds = courseIdAliases.length > 0 ? courseIdAliases : [courseId];
+
+    const matchesCourseId = (value: any): boolean => {
+      const raw = value?.course_id ?? value?.courseId ?? value?.courseID;
+      if (!raw) return false;
+      const asString = String(raw);
+      const lower = asString.toLowerCase();
+      return uniqueCourseIds.includes(asString) || uniqueCourseIds.includes(lower);
+    };
+
     // 1. Check recent enrollment success flags (highest priority)
-    const enrollmentSuccessKey = `enrollment-success-${userId}-${courseId}`;
-    const enrollmentSuccessData = this.getStorageData('localStorage', enrollmentSuccessKey);
-    if (enrollmentSuccessData) {
-      sources.push({
-        name: 'enrollment-success-flag',
-        type: 'localStorage',
-        priority: 10,
-        data: this.normalizeEnrollmentData(enrollmentSuccessData, userId, courseId),
-        confidence: 0.95,
-        timestamp: new Date(),
-        key: enrollmentSuccessKey
-      });
+    for (const candidateCourseId of uniqueCourseIds) {
+      const enrollmentSuccessKey = `enrollment-success-${userId}-${candidateCourseId}`;
+      const enrollmentSuccessData = this.getStorageData('localStorage', enrollmentSuccessKey);
+      if (enrollmentSuccessData) {
+        sources.push({
+          name: 'enrollment-success-flag',
+          type: 'localStorage',
+          priority: 10,
+          data: this.normalizeEnrollmentData(enrollmentSuccessData, userId, courseId),
+          confidence: 0.95,
+          timestamp: new Date(),
+          key: enrollmentSuccessKey
+        });
+      }
     }
 
     // 2. Check recent payment flags
-    const recentPaymentKey = `recent-payment-${userId}-${courseId}`;
-    const recentPaymentData = this.getStorageData('localStorage', recentPaymentKey);
-    if (recentPaymentData) {
-      sources.push({
-        name: 'recent-payment-flag',
-        type: 'localStorage',
-        priority: 9,
-        data: this.normalizeEnrollmentData(recentPaymentData, userId, courseId),
-        confidence: 0.9,
-        timestamp: new Date(),
-        key: recentPaymentKey
-      });
+    for (const candidateCourseId of uniqueCourseIds) {
+      const recentPaymentKey = `recent-payment-${userId}-${candidateCourseId}`;
+      const recentPaymentData = this.getStorageData('localStorage', recentPaymentKey);
+      if (recentPaymentData) {
+        sources.push({
+          name: 'recent-payment-flag',
+          type: 'localStorage',
+          priority: 9,
+          data: this.normalizeEnrollmentData(recentPaymentData, userId, courseId),
+          confidence: 0.9,
+          timestamp: new Date(),
+          key: recentPaymentKey
+        });
+      }
     }
 
     // 3. Check bulletproof enrollment flags
-    const bulletproofKey = `bulletproof-enrollment-${courseId}`;
-    const bulletproofData = this.getStorageData('localStorage', bulletproofKey);
-    if (bulletproofData) {
-      sources.push({
-        name: 'bulletproof-enrollment',
-        type: 'localStorage',
-        priority: 8,
-        data: this.normalizeEnrollmentData(bulletproofData, userId, courseId),
-        confidence: 0.85,
-        timestamp: new Date(),
-        key: bulletproofKey
-      });
+    for (const candidateCourseId of uniqueCourseIds) {
+      const bulletproofKey = `bulletproof-enrollment-${candidateCourseId}`;
+      const bulletproofData = this.getStorageData('localStorage', bulletproofKey);
+      if (bulletproofData) {
+        sources.push({
+          name: 'bulletproof-enrollment',
+          type: 'localStorage',
+          priority: 8,
+          data: this.normalizeEnrollmentData(bulletproofData, userId, courseId),
+          confidence: 0.85,
+          timestamp: new Date(),
+          key: bulletproofKey
+        });
+      }
     }
 
     // 4. Check user-specific enrollment lists
     const userEnrollmentsKey = `user-enrollments-${userId}`;
     const userEnrollmentsData = this.getStorageData('localStorage', userEnrollmentsKey);
     if (userEnrollmentsData && Array.isArray(userEnrollmentsData)) {
-      const userEnrollment = userEnrollmentsData.find((e: any) => 
-        e.course_id === courseId && (e.user_id === userId || e.user_email === userId)
+      const userEnrollment = userEnrollmentsData.find((e: any) =>
+        matchesCourseId(e) && (e.user_id === userId || e.user_email === userId)
       );
       if (userEnrollment) {
         sources.push({
@@ -271,8 +289,8 @@ export class UnifiedEnrollmentValidator {
     // 5. Check global enrollments list
     const globalEnrollmentsData = this.getStorageData('localStorage', 'enrollments');
     if (globalEnrollmentsData && Array.isArray(globalEnrollmentsData)) {
-      const globalEnrollment = globalEnrollmentsData.find((e: any) => 
-        e.course_id === courseId && (e.user_id === userId || e.user_email === userId)
+      const globalEnrollment = globalEnrollmentsData.find((e: any) =>
+        matchesCourseId(e) && (e.user_id === userId || e.user_email === userId)
       );
       if (globalEnrollment) {
         sources.push({
@@ -288,10 +306,10 @@ export class UnifiedEnrollmentValidator {
     }
 
     // 6. Check individual enrollment keys
-    const individualKeys = [
-      `user-enrollment-${userId}-${courseId}`,
-      `enrollment-${courseId}`
-    ];
+    const individualKeys = uniqueCourseIds.flatMap(candidateCourseId => [
+      `user-enrollment-${userId}-${candidateCourseId}`,
+      `enrollment-${candidateCourseId}`
+    ]);
 
     for (const key of individualKeys) {
       const data = this.getStorageData('localStorage', key);
@@ -312,7 +330,7 @@ export class UnifiedEnrollmentValidator {
     const sessionStorageKeys = [
       `user-enrollments-${userId}`,
       'enrollments',
-      `enrollment-${courseId}`
+      ...uniqueCourseIds.map(candidateCourseId => `enrollment-${candidateCourseId}`)
     ];
 
     for (const key of sessionStorageKeys) {
@@ -320,10 +338,10 @@ export class UnifiedEnrollmentValidator {
       if (data) {
         let enrollmentData = null;
         if (Array.isArray(data)) {
-          enrollmentData = data.find((e: any) => 
-            e.course_id === courseId && (e.user_id === userId || e.user_email === userId)
+          enrollmentData = data.find((e: any) =>
+            matchesCourseId(e) && (e.user_id === userId || e.user_email === userId)
           );
-        } else if (data.course_id === courseId && (data.user_id === userId || data.user_email === userId)) {
+        } else if (matchesCourseId(data) && (data.user_id === userId || data.user_email === userId)) {
           enrollmentData = data;
         }
 

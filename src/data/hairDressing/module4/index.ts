@@ -1,13 +1,15 @@
-import { Module } from '@/types/course';
-import { lesson4_1 } from './lesson4_1';
-import { quiz4 } from './quiz4';
+import type { Module } from '@/types/course';
+import { lesson1HairCuttingTechniques } from './lesson1-hair-cutting-techniques';
+import { module4Quiz } from './quiz4';
 
-export const module4: Module = {
+const module4: Module = {
   id: 4,
-  title: 'Hair Cutting Techniques',
-  description: 'Master basic hair cutting styles including one-length cuts, layered cuts, bob and pixie cuts with proper technique and precision',
+  title: '✂️ Module 4: Hair Cutting Techniques',
+  description: 'Master basic hair cutting styles including one-length cuts, layered cuts, bobs, and pixie cuts',
   lessons: [
-    lesson4_1,
-    quiz4
+    lesson1HairCuttingTechniques,
+    module4Quiz
   ]
-}; 
+};
+
+export default module4;

@@ -15,11 +15,13 @@ import { computerRepairsCourse } from './computerRepairsCourse';
 import { entrepreneurshipFinalCourse } from './entrepreneurshipFinalCourse';
 import { soundEngineeringCourse } from './soundEngineeringCourse';
 import { christianTeacherCourse } from './christianTeacherCourse';
+import aiHumanRelationsCourse from './aiHumanRelations';
 import roofingCourse from './roofingCourse';
 import { smartHomeAutomationCourse } from './smartHomeAutomationCourse';
 import { podcastManagement101Course } from './podcastManagement101Course';
 import { socialMediaMarketing101Course } from './socialMediaMarketing101Course';
 import { landscaping101Course } from './landscaping101Course';
+
 import masterchef101 from './masterchef101';
 import beautyTherapy101 from './beautyTherapy101';
 import doggrooming101 from './doggrooming101';
@@ -65,6 +67,7 @@ const allCourseData = [
   aiAssistedWebDevelopmentCourse,
   computerRepairsCourse,
   entrepreneurshipFinalCourse,
+  convertCourseToUnified(aiHumanRelationsCourse),
   soundEngineeringCourse,
   christianTeacherCourse,
   roofingCourse,

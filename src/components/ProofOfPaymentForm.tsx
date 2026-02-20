@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -193,6 +194,8 @@ const ProofOfPaymentForm: React.FC<ProofOfPaymentFormProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStage, setSubmissionStage] = useState<'idle' | 'uploading' | 'submitting' | 'finalizing'>('idle');
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -202,6 +205,34 @@ const ProofOfPaymentForm: React.FC<ProofOfPaymentFormProps> = ({
     file: null as File | null
   });
   const [filePreview, setFilePreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isSubmitting) {
+      setElapsedSeconds(0);
+      setSubmissionStage('idle');
+      return;
+    }
+    const id = window.setInterval(() => setElapsedSeconds((s) => s + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [isSubmitting]);
+
+  const submissionHint = useMemo(() => {
+    if (!isSubmitting) return null;
+
+    const stageText =
+      submissionStage === 'uploading'
+        ? 'Uploading proof of payment…'
+        : submissionStage === 'submitting'
+          ? 'Submitting your enrollment…'
+          : submissionStage === 'finalizing'
+            ? 'Finalizing…'
+            : 'Working…';
+
+    if (elapsedSeconds < 6) return stageText;
+    if (elapsedSeconds < 15) return `${stageText} This may take a few seconds.`;
+    if (elapsedSeconds < 45) return `${stageText} This can take up to a minute on slower connections.`;
+    return `${stageText} Still working—please keep this page open.`;
+  }, [elapsedSeconds, isSubmitting, submissionStage]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -270,6 +301,7 @@ const ProofOfPaymentForm: React.FC<ProofOfPaymentFormProps> = ({
     }
 
     setIsSubmitting(true);
+    setSubmissionStage('uploading');
     let didComplete = false;
 
     try {
@@ -354,6 +386,7 @@ const ProofOfPaymentForm: React.FC<ProofOfPaymentFormProps> = ({
 
       // Submit to database (authoritative) - no background save
       console.log('🔄 Submitting EFT enrollment to database...');
+      setSubmissionStage('submitting');
 
       const enrollmentPayload = {
         userId: user.id,
@@ -372,6 +405,8 @@ const ProofOfPaymentForm: React.FC<ProofOfPaymentFormProps> = ({
         160000,
         'Enrollment submission is taking too long. Please try again.'
       );
+      setSubmissionStage('finalizing');
+
       const serverEnrollment = (data as any)?.enrollment;
       if (!serverEnrollment?.id) {
         throw new Error('Enrollment submission failed: missing enrollment id from server');
@@ -682,24 +717,29 @@ const ProofOfPaymentForm: React.FC<ProofOfPaymentFormProps> = ({
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            form="proof-of-payment-form"
-            className="w-full bg-red-600 hover:bg-red-700"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-4 w-4" />
-                Submit Proof
-              </>
-            )}
-          </Button>
+          <div className="w-full flex flex-col gap-2">
+            {submissionHint ? (
+              <div className="text-xs text-gray-600 text-center">{submissionHint}</div>
+            ) : null}
+            <Button
+              type="submit"
+              form="proof-of-payment-form"
+              className="w-full bg-red-600 hover:bg-red-700"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Submit Proof
+                </>
+              )}
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     </div>

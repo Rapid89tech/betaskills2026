@@ -27,13 +27,6 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        // Minimal chunking to prevent React issues
-        manualChunks: {
-          // Keep React and all related dependencies in one chunk
-          'vendor-react': ['react', 'react-dom', 'react-router-dom', 'react/jsx-runtime'],
-          'vendor-supabase': ['@supabase/supabase-js'],
-          'vendor-ui': Object.keys(packageJson.dependencies).filter(dep => dep.startsWith('@radix-ui')),
-        },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'

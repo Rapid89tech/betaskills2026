@@ -42,6 +42,45 @@ const readAccessTokenFromStorage = (): string | null => {
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+const compressImageFile = async (file: File, opts?: { maxWidth?: number; maxHeight?: number; quality?: number }): Promise<File> => {
+  const maxWidth = opts?.maxWidth ?? 1600;
+  const maxHeight = opts?.maxHeight ?? 1600;
+  const quality = opts?.quality ?? 0.75;
+
+  if (!file.type.startsWith('image/')) return file;
+
+  const dataUrl = await fileToDataUrl(file);
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('Failed to load image for compression'));
+    image.src = dataUrl;
+  });
+
+  let { width, height } = img;
+  const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
+  width = Math.max(1, Math.round(width * ratio));
+  height = Math.max(1, Math.round(height * ratio));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return file;
+  ctx.drawImage(img, 0, 0, width, height);
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error('Failed to compress image'))),
+      'image/jpeg',
+      quality
+    );
+  });
+
+  const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+  return new File([blob], name, { type: 'image/jpeg' });
+};
+
 const invokeSubmitEftEnrollment = async (payload: any) => {
   const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig();
   console.log('🌐 submit-eft-enrollment: preparing request');
@@ -238,41 +277,77 @@ const ProofOfPaymentForm: React.FC<ProofOfPaymentFormProps> = ({
 
       try {
         console.log('📤 Uploading proof of payment file...');
-        const fileExt = formData.file.name.split('.').pop();
-        const fileName = `${user.id}_${courseId}_${Date.now()}.${fileExt}`;
-        const filePath = `payment-proofs/${fileName}`;
+        const uploadTimeouts = [45000, 90000];
+        let lastUploadErr: any = null;
+        let fileToUpload: File = formData.file;
 
-        const { error: uploadError } = await withTimeout(
-          supabase.storage
-            .from('payment-proofs')
-            .upload(filePath, formData.file, {
-              cacheControl: '3600',
-              upsert: false
-            }),
-          30000,
-          'Upload timed out. Please check your connection and try again.'
-        );
+        for (let attempt = 0; attempt < uploadTimeouts.length; attempt++) {
+          try {
+            const fileExt = fileToUpload.name.split('.').pop();
+            const fileName = `${user.id}_${courseId}_${Date.now()}.${fileExt}`;
+            const filePath = `payment-proofs/${fileName}`;
 
-        if (uploadError) {
-          console.error('❌ File upload error:', uploadError);
-          throw new Error(`Failed to upload file: ${uploadError.message}`);
+            const { error: uploadError } = await withTimeout(
+              supabase.storage
+                .from('payment-proofs')
+                .upload(filePath, fileToUpload, {
+                  cacheControl: '3600',
+                  upsert: false
+                }),
+              uploadTimeouts[attempt],
+              'Upload timed out. Please check your connection and try again.'
+            );
+
+            if (uploadError) {
+              console.error('❌ File upload error:', uploadError);
+              throw new Error(`Failed to upload file: ${uploadError.message}`);
+            }
+
+            const { data: { publicUrl } } = supabase.storage
+              .from('payment-proofs')
+              .getPublicUrl(filePath);
+
+            proofUrl = publicUrl;
+            console.log('✅ File uploaded successfully:', proofUrl);
+            lastUploadErr = null;
+            break;
+          } catch (e: any) {
+            lastUploadErr = e;
+            const msg = String(e?.message || e || '');
+            const retryable = /aborted|abort|timed out|timeout|failed to fetch|network/i.test(msg);
+            if (!retryable || attempt === uploadTimeouts.length - 1) {
+              break;
+            }
+            await sleep(700 * Math.pow(2, attempt));
+          }
         }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('payment-proofs')
-          .getPublicUrl(filePath);
-
-        proofUrl = publicUrl;
-        console.log('✅ File uploaded successfully:', proofUrl);
+        if (lastUploadErr) {
+          throw lastUploadErr;
+        }
       } catch (uploadErr) {
-        const maxFallbackBytes = 800 * 1024;
-        if (formData.file.size > maxFallbackBytes) {
+        let fileForFallback = formData.file;
+        if (fileForFallback.type.startsWith('image/')) {
+          try {
+            fileForFallback = await withTimeout(
+              compressImageFile(fileForFallback, { maxWidth: 1600, maxHeight: 1600, quality: 0.75 }),
+              12000,
+              'Failed to optimize image for upload.'
+            );
+          } catch {
+            fileForFallback = formData.file;
+          }
+        }
+
+        const maxFallbackBytes = 4.5 * 1024 * 1024;
+        if (fileForFallback.size > maxFallbackBytes) {
           throw uploadErr;
         }
+
         console.warn('⚠️ Storage upload failed, falling back to embedded proof for this submission.');
         proofUrl = await withTimeout(
-          fileToDataUrl(formData.file),
-          8000,
+          fileToDataUrl(fileForFallback),
+          15000,
           'Failed to read proof file for fallback upload.'
         );
       }
